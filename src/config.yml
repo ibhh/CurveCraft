@@ -6,7 +6,7 @@ senderrorreport: true
 senddebugfile: false
 debug: false
 debugfile: true
-users_can_choose_privacy: true
+users_can_choose_privacy: false
 UsePrefix: true
 Prefix: CurveCraft
 PrefixColor: b

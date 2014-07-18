@@ -4,6 +4,6 @@ main: com.ibhh.CurveCraft.CurveCraft
 author: ibhh
 website: http://ibhh.de
 commands:
-  cf:
+  cc:
     description: help of CurveCraft
     usage: /cc

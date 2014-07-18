@@ -226,7 +226,7 @@ public class CurveCraft extends JavaPlugin {
         if ((sender instanceof Player)) {
             Player player = (Player) sender;
 
-            if (command.getName().equalsIgnoreCase("cf")) {
+            if (command.getName().equalsIgnoreCase("cc")) {
                 if (args.length == 1) {
                     if (args[0].equalsIgnoreCase("horse")) {
                         Horse h = (Horse) getServer().getWorld("world").spawnEntity(player.getLocation(), EntityType.HORSE);
