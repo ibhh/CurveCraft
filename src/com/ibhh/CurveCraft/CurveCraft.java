@@ -8,6 +8,7 @@ import com.ibhh.CurveCraft.arena.ArenaHandler;
 import com.ibhh.CurveCraft.arena.CCArena;
 import com.ibhh.CurveCraft.arena.LobbyJoinException;
 import com.ibhh.CurveCraft.arena.NotInLobbyorGameException;
+import com.ibhh.CurveCraft.arena.StartGameException;
 import com.ibhh.CurveCraft.arena.VotingNotEnabledException;
 import com.ibhh.CurveCraft.config.ConfigurationHandler;
 import com.ibhh.CurveCraft.createArena.ArenaCreationProzess;
@@ -46,7 +47,7 @@ public class CurveCraft extends JavaPlugin {
     private IConomyHandler iConomyHandler;
     private MetricsHandler metricsHandler;
     private Help help;
-    private final String[] commands = {"help", "version", "denytracking", "allowtracking", "create", "setname", "setcorner1", "setcorner2", "join", "start", "setlobby", "setend", "lobby", "exit"};
+    private final String[] commands = {"help", "version", "denytracking", "allowtracking", "create", "setname", "setcorner1", "setcorner2", "join", "forcestart", "start", "setlobby", "setend", "lobby", "exit"};
 
     private final HashMap<String, ArenaCreationProzess> arena = new HashMap();
     private ArenaHandler arenaHandler;
@@ -87,7 +88,6 @@ public class CurveCraft extends JavaPlugin {
         }
         return this.iConomyHandler;
     }
-
 
     public ArenaHandler getArenaHandler() {
         if (this.arenaHandler == null) {
@@ -429,6 +429,24 @@ public class CurveCraft extends JavaPlugin {
                         if (getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.setname.permission"))) {
                             getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.notfinished.name"), LoggerUtility.Level.INFO);
                             ((ArenaCreationProzess) this.arena.get(player.getName())).setName(args[1]);
+                        }
+                        return true;
+                    }
+
+                    if (args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.forcestart.name"))) {
+                        if (getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.forcestart.permission"))) {
+                            CCArena are = getArenaHandler().getArenaByName(args[1]);
+                            if (are != null) {
+                                try {
+                                    are.forcestart(this);
+                                    getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("start.forcestart.success"), LoggerUtility.Level.INFO);
+                                } catch (StartGameException ex) {
+                                    getLoggerUtility().log(player, ex.getMessage(), LoggerUtility.Level.ERROR);
+                                }
+                            } else {
+                                getLoggerUtility().log(player, String.format(getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), new Object[]{args[1]}), LoggerUtility.Level.ERROR);
+
+                            }
                         }
                         return true;
                     }

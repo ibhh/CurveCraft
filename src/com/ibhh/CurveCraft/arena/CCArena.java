@@ -54,6 +54,7 @@ public class CCArena {
     private double speed = 0.5D;
 
     private boolean gameisrunning = false;
+    private boolean roundrunning = false;
 
     private int pointsneeded = -1;
 
@@ -61,6 +62,7 @@ public class CCArena {
     private int timebeforeround = 5;
 
     private int invincible = 60;
+    private int invincible_standard = 60;
 
     private final HashMap<Player, Integer> score = new HashMap<>();
     private final HashMap<Player, DyeColor> horses = new HashMap<>();
@@ -117,7 +119,10 @@ public class CCArena {
         this.invincible = arena_save.getInt("arena.timeinvincible");
         if (this.invincible == 0) {
             this.invincible = 60;
+            this.invincible_standard = 60;
         }
+
+        this.invincible_standard = invincible;
 
         this.allowstartwithoutmaxplayers = arena_save.getBoolean("player.playersCanVoteForStart");
 
@@ -336,17 +341,17 @@ public class CCArena {
         File configl = new File(plugin.getDataFolder() + File.separator + "arena-saves" + File.separator + world + File.separator + getName() + ".yml");
         YamlConfiguration arena_save = prepareSave(plugin, configl);
 
-        arena_save.set("player.minplayer", Integer.valueOf(getMinplayers()));
-        arena_save.set("player.maxplayer", Integer.valueOf(getMaxplayers()));
-        arena_save.set("player.playersCanVoteForStart", Boolean.valueOf(isAllowstartwithoutmaxplayers()));
+        arena_save.set("player.minplayer", getMinplayers());
+        arena_save.set("player.maxplayer", getMaxplayers());
+        arena_save.set("player.playersCanVoteForStart", isAllowstartwithoutmaxplayers());
 
         arena_save.set("arena.name", getName());
-        arena_save.set("arena.speed", Double.valueOf(getSpeed()));
-        arena_save.set("arena.gap_length", Integer.valueOf(getGap_length()));
-        arena_save.set("arena.gap_distance", Integer.valueOf(getGap_distance()));
-        arena_save.set("arena.timebeforegame", Integer.valueOf(getTimebeforegame()));
-        arena_save.set("arena.timebeforeround", Integer.valueOf(getTimebeforeround()));
-        arena_save.set("arena.timeinvincible", Integer.valueOf(getInvincible()));
+        arena_save.set("arena.speed", getSpeed());
+        arena_save.set("arena.gap_length", getGap_length());
+        arena_save.set("arena.gap_distance", getGap_distance());
+        arena_save.set("arena.timebeforegame", getTimebeforegame());
+        arena_save.set("arena.timebeforeround", getTimebeforeround());
+        arena_save.set("arena.timeinvincible", getInvincible());
         arena_save.set("arena.corner1", getCorner1().getBlockX() + "/" + getCorner1().getBlockY() + "/" + getCorner1().getBlockZ());
         arena_save.set("arena.corner2", getCorner2().getBlockX() + "/" + getCorner2().getBlockY() + "/" + getCorner2().getBlockZ());
         arena_save.set("arena.lobbyloc", getLobbyloc().getBlockX() + "/" + getLobbyloc().getBlockY() + "/" + getLobbyloc().getBlockZ());
@@ -439,15 +444,16 @@ public class CCArena {
             h.getInventory().setSaddle(null);
             h.damage(1000.0D);
         }
-        int sco = ((Integer) this.score.get(p)).intValue();
+        int sco = (this.score.get(p));
         sco += this.lobby.size() - this.alive.size();
         this.score.remove(p);
-        this.score.put(p, Integer.valueOf(sco));
+        this.score.put(p, sco);
         this.alive.remove(p);
         p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000, 1), true);
         final ScoreboardManager manager = Bukkit.getScoreboardManager();
 
         plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
             public void run() {
                 p.teleport(CCArena.this.endloc);
             }
@@ -459,7 +465,7 @@ public class CCArena {
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
             objective.setDisplayName(ChatColor.GREEN + plugin.getConfigHandler().getLanguage_config().getString("scoreboard.name") + "(" + (this.lobby.size() - 1) * 10 + ")");
             for (Player pla : this.lobby) {
-                objective.getScore(pla.getName()).setScore(((Integer) this.score.get(pla)).intValue());
+                objective.getScore(pla.getName()).setScore((this.score.get(pla)));
             }
             pl.setScoreboard(board);
         }
@@ -473,7 +479,7 @@ public class CCArena {
                 plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("round.winner"), new Object[]{((Player) this.alive.get(0)).getName()}), LoggerUtility.Level.INFO);
             }
             die(plugin, (Player) this.alive.get(0));
-
+            roundrunning = false;
             if (hasWinner() != null) {
                 /**
                  * Fire event PlayerGameWinEvent
@@ -487,6 +493,7 @@ public class CCArena {
             }
 
             plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+                @Override
                 public void run() {
                     if (hasWinner() != null) {
 
@@ -500,16 +507,24 @@ public class CCArena {
                         plugin.getLoggerUtility().log("passed gameticks: " + (CCArena.this.invincible - 20), LoggerUtility.Level.DEBUG);
 
                         CCArena.this.reset(plugin, true);
+                    } else {
+                        CCArena.this.reset(plugin, false);
+
+                        plugin.getLoggerUtility().log("starting new round!", LoggerUtility.Level.DEBUG);
+
+                        CCArena.this.initGame(plugin, true);
+                        plugin.getLoggerUtility().log("round initialized", LoggerUtility.Level.DEBUG);
                     }
-
-                    CCArena.this.reset(plugin, false);
-
-                    plugin.getLoggerUtility().log("starting new round!", LoggerUtility.Level.DEBUG);
-
-                    CCArena.this.initGame(plugin, true);
-                    plugin.getLoggerUtility().log("round initialized", LoggerUtility.Level.DEBUG);
                 }
             }, 1L);
+        }
+    }
+    
+    public void forcestart(final CurveCraft plugin) throws StartGameException {
+        if(lobby.size() >= 2) {
+            initGame(plugin, false);
+        } else {
+            throw new StartGameException(plugin.getConfigHandler().getLanguage_config().getString("start.forcestart.fail"));
         }
     }
 
@@ -530,12 +545,12 @@ public class CCArena {
     }
 
     private void gametick(final CurveCraft plugin) {
-        if (!this.gameisrunning) {
+        if (!gameisrunning || !roundrunning) {
             return;
         }
         ArrayList<Player> a = (ArrayList<Player>) alive.clone();
         for (final Player p : a) {
-            if (!isInArena(p.getLocation())) {
+            if (!isInArena(p.getLocation()) && (invincible <= 0)) {
                 plugin.getLoggerUtility().log(p, plugin.getConfigHandler().getLanguage_config().getString("game.crash.wand"), LoggerUtility.Level.INFO);
                 plugin.getLoggerUtility().log("player " + p.getName() + " was outside the arena!", LoggerUtility.Level.DEBUG);
 
@@ -567,17 +582,20 @@ public class CCArena {
                         this.gap.remove(p);
                         z++;
                         this.gap.put(p, z);
-                        plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
-                            public void run() {
-                                synchronized (horses) {
-                                    if (CCArena.this.horses.containsKey(p)) {
-                                        b2.setType(Material.STAINED_GLASS_PANE);
-                                        b2.setData(new Wool((DyeColor) horses.get(p)).getData());
-                                        b2.getState().update(true);
+                        if (this.invincible <= 0) {
+                            plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+                                @Override
+                                public void run() {
+                                    synchronized (horses) {
+                                        if (CCArena.this.horses.containsKey(p)) {
+                                            b2.setType(Material.STAINED_GLASS_PANE);
+                                            b2.setData(new Wool((DyeColor) horses.get(p)).getData());
+                                            b2.getState().update(true);
+                                        }
                                     }
                                 }
-                            }
-                        }, 4L);
+                            }, 4L);
+                        }
                     }
 
                     if ((b.getType().equals(Material.STAINED_GLASS_PANE)) && (this.invincible <= 0)) {
@@ -597,8 +615,8 @@ public class CCArena {
             }
 
         }
+        invincible--;
 
-        this.invincible -= 1;
     }
 
     private void initGame(final CurveCraft plugin, final boolean round) {
@@ -649,17 +667,17 @@ public class CCArena {
             }
         });
         plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
             public void run() {
                 CCArena.this.startGame(plugin);
                 if (!round) {
-                    if (!round) {
-                        for (Player player : CCArena.this.lobby) {
-                            plugin.getLoggerUtility().log(player, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.color"), horses.get(player).name()), LoggerUtility.Level.INFO);
-                        }
+                    for (Player player : CCArena.this.lobby) {
+                        plugin.getLoggerUtility().log(player, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.color"), horses.get(player).name()), LoggerUtility.Level.INFO);
                     }
                     pointsneeded = (CCArena.this.lobby.size() - 1) * 10;
                     gameisrunning = true;
                 }
+                roundrunning = true;
             }
         }, (round ? this.timebeforeround : this.timebeforegame) * 20);
     }
@@ -985,6 +1003,7 @@ public class CCArena {
             plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.exit.playerexit"), new Object[]{p.getName()}), LoggerUtility.Level.INFO);
         }
         plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
             public void run() {
                 p.teleport(exitloc);
             }
@@ -1008,6 +1027,7 @@ public class CCArena {
             p.removePotionEffect(ef.getType());
         }
         plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
             public void run() {
                 p.teleport(exitloc);
             }
@@ -1028,19 +1048,24 @@ public class CCArena {
             this.voted.clear();
             for (Iterator i = this.lobby.iterator(); i.hasNext();) {
                 final Player p = (Player) i.next();
-                plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
-                    public void run() {
-                        p.teleport(CCArena.this.exitloc);
-                    }
-                }, 15L);
                 for (PotionEffect ef : p.getActivePotionEffects()) {
                     p.removePotionEffect(ef.getType());
                 }
+                ScoreboardManager manager = Bukkit.getScoreboardManager();
+                Scoreboard board = manager.getNewScoreboard();
+                p.setScoreboard(board);
+                plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+                    @Override
+                    public void run() {
+                        p.teleport(exitloc);
+                    }
+                }, 40L);
             }
             this.lobby.clear();
             this.gameisrunning = false;
         }
-        this.invincible = 60;
+        roundrunning = false;
+        this.invincible = invincible_standard;
         this.gap.clear();
         this.horses.clear();
         Location topLeftCorner;
