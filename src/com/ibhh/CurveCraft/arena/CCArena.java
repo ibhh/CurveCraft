@@ -55,6 +55,8 @@ public class CCArena {
 
     private boolean gameisrunning = false;
     private boolean roundrunning = false;
+    
+    private boolean lightning = true;
 
     private int pointsneeded = -1;
 
@@ -121,6 +123,8 @@ public class CCArena {
             this.invincible = 60;
             this.invincible_standard = 60;
         }
+        
+        this.lightning = arena_save.getBoolean("arena.lightning");
 
         this.invincible_standard = invincible;
 
@@ -150,12 +154,14 @@ public class CCArena {
         this.endloc = new Location(world, Integer.parseInt(cc4[0]), Integer.parseInt(cc4[1]), Integer.parseInt(cc4[2]));
         this.exitloc = new Location(world, Integer.parseInt(cc5[0]), Integer.parseInt(cc5[1]), Integer.parseInt(cc5[2]));
         plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
+            @Override
             public void run() {
                 CCArena.this.reset(plugin, true);
             }
         });
         plugin.getLoggerUtility().log("starting gametick thread!", LoggerUtility.Level.DEBUG);
         plugin.getServer().getScheduler().runTaskTimer(plugin, new Runnable() {
+            @Override
             public void run() {
                 CCArena.this.gametick(plugin);
             }
@@ -357,6 +363,7 @@ public class CCArena {
         arena_save.set("arena.lobbyloc", getLobbyloc().getBlockX() + "/" + getLobbyloc().getBlockY() + "/" + getLobbyloc().getBlockZ());
         arena_save.set("arena.endloc", getEndloc().getBlockX() + "/" + getEndloc().getBlockY() + "/" + getEndloc().getBlockZ());
         arena_save.set("arena.exitloc", getExitloc().getBlockX() + "/" + getExitloc().getBlockY() + "/" + getExitloc().getBlockZ());
+        arena_save.set("arena.lightning", lightning);
         try {
             arena_save.options().copyDefaults(true);
             arena_save.save(configl);
@@ -391,6 +398,7 @@ public class CCArena {
         arena_save.addDefault("arena.lobbyloc", "-1/0/-1");
         arena_save.addDefault("arena.endloc", "-10/0/-10");
         arena_save.addDefault("arena.exitloc", "-15/0/-15");
+        arena_save.addDefault("arena.lightning", "true");
         try {
             arena_save.options().copyDefaults(true);
             arena_save.save(configl);
@@ -434,7 +442,7 @@ public class CCArena {
         }
     }
 
-    private void die(final CurveCraft plugin, final Player p) {
+    private void die(final CurveCraft plugin, final Player p, boolean crash) {
         plugin.getLoggerUtility().log("player " + p.getName() + " died!", LoggerUtility.Level.DEBUG);
 
         Entity e = p.getVehicle();
@@ -449,6 +457,11 @@ public class CCArena {
         this.score.remove(p);
         this.score.put(p, sco);
         this.alive.remove(p);
+        
+        if(crash && lightning) {
+            corner1.getWorld().strikeLightning(p.getLocation());
+        }
+        
         p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000, 1), true);
         final ScoreboardManager manager = Bukkit.getScoreboardManager();
 
@@ -478,7 +491,7 @@ public class CCArena {
             for (Player pl : this.lobby) {
                 plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("round.winner"), new Object[]{((Player) this.alive.get(0)).getName()}), LoggerUtility.Level.INFO);
             }
-            die(plugin, (Player) this.alive.get(0));
+            die(plugin, (Player) this.alive.get(0), false);
             roundrunning = false;
             if (hasWinner() != null) {
                 /**
@@ -554,7 +567,7 @@ public class CCArena {
                 plugin.getLoggerUtility().log(p, plugin.getConfigHandler().getLanguage_config().getString("game.crash.wand"), LoggerUtility.Level.INFO);
                 plugin.getLoggerUtility().log("player " + p.getName() + " was outside the arena!", LoggerUtility.Level.DEBUG);
 
-                die(plugin, p);
+                die(plugin, p, true);
             }
             p.setSprinting(false);
             if ((p.getVehicle() instanceof Horse)) {
@@ -601,7 +614,7 @@ public class CCArena {
                     if ((b.getType().equals(Material.STAINED_GLASS_PANE)) && (this.invincible <= 0)) {
                         plugin.getLoggerUtility().log(p, plugin.getConfigHandler().getLanguage_config().getString("game.crash.plane"), LoggerUtility.Level.INFO);
                         plugin.getLoggerUtility().log("player " + p.getName() + " crashed into plane!", LoggerUtility.Level.DEBUG);
-                        die(plugin, p);
+                        die(plugin, p, true);
                     }
 
                     h.getLocation().setDirection(p.getLocation().getDirection());
@@ -728,7 +741,7 @@ public class CCArena {
                 }
                 trys++;
 
-                ploc = new Location(this.corner1.getWorld(), topLeftCorner.getBlockX() + xrange * Math.random(), this.corner1.getBlockY() + 1, bottomRightCorner.getBlockZ() + zrange * Math.random());
+                ploc = new Location(this.corner1.getWorld(), topLeftCorner.getBlockX()+ 1 + (xrange - 2) * Math.random(), this.corner1.getBlockY() + 1, bottomRightCorner.getBlockZ() + 1 + (zrange - 2) * Math.random());
             } while (minDistToNextPlayer(ploc) < 100.0D);
 
             plugin.getLoggerUtility().log("finished calculation for player positions", LoggerUtility.Level.DEBUG);

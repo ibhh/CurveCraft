@@ -171,10 +171,10 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("commands.start.description", "Ermoeglicht das vorzeitige starten eines Spiels");
                 this.language_config.addDefault("commands.start.usage", "/cc start");
                 
-                this.language_config.addDefault("commands.start.name", "forcestart");
-                this.language_config.addDefault("commands.start.permission", "CurveCraft.forcestart");
-                this.language_config.addDefault("commands.start.description", "startet Spiel frueher.");
-                this.language_config.addDefault("commands.start.usage", "/cc forcestart");
+                this.language_config.addDefault("commands.forcestart.name", "forcestart");
+                this.language_config.addDefault("commands.forcestart.permission", "CurveCraft.forcestart");
+                this.language_config.addDefault("commands.forcestart.description", "startet Spiel frueher.");
+                this.language_config.addDefault("commands.forcestart.usage", "/cc forcestart");
 
                 this.language_config.addDefault("game.exit.message", "Du hast das Spiel verlassen.");
                 this.language_config.addDefault("game.exit.playerexit", "%s hat das Spiel verlassen.");
@@ -351,10 +351,10 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("commands.join.description", "Joins an arena");
                 this.language_config.addDefault("commands.join.usage", "/cc join ARENA");
                 
-                this.language_config.addDefault("commands.start.name", "forcestart");
-                this.language_config.addDefault("commands.start.permission", "CurveCraft.forcestart");
-                this.language_config.addDefault("commands.start.description", "start game earlier.");
-                this.language_config.addDefault("commands.start.usage", "/cc forcestart");
+                this.language_config.addDefault("commands.forcestart.name", "forcestart");
+                this.language_config.addDefault("commands.forcestart.permission", "CurveCraft.forcestart");
+                this.language_config.addDefault("commands.forcestart.description", "start game earlier.");
+                this.language_config.addDefault("commands.forcestart.usage", "/cc forcestart");
 
                 this.language_config.addDefault("commands.start.name", "start");
                 this.language_config.addDefault("commands.start.permission", "CurveCraft.play");
