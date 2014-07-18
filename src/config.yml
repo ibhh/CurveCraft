@@ -1,0 +1,15 @@
+language: en
+autodownload: true
+installondownload: false
+updateCheck: true
+senderrorreport: true
+senddebugfile: false
+debug: false
+debugfile: true
+users_can_choose_privacy: true
+UsePrefix: true
+Prefix: CurveCraft
+PrefixColor: b
+TextColor: 6
+updateIntervall: 30
+everyArenaOwnJoinPermission: false
