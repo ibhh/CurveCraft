@@ -5,6 +5,7 @@ import com.ibhh.CurveCraft.arena.CCArena;
 import com.ibhh.CurveCraft.arena.NotInLobbyorGameException;
 import com.ibhh.CurveCraft.logger.LoggerUtility;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,6 +13,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -122,6 +124,28 @@ public class PlayerListener
             e.setCancelled(true);
         }
         this.plugin.getLoggerUtility().log("PlayerInteractEvent handled in " + (System.nanoTime() - time) / 1000000L + " ms", LoggerUtility.Level.DEBUG);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onDamage(EntityDamageEvent e) {
+        long time = System.nanoTime();
+        Player p = null;
+        if (e.getEntityType().equals(EntityType.PLAYER)) {
+            p = (Player) e.getEntity();
+        }
+        if(e.getEntityType().equals(EntityType.HORSE)) {
+            Horse h = (Horse) e.getEntity();
+            if(h.getPassenger() != null && !h.getPassenger().isEmpty() && h.getPassenger().getType().equals(EntityType.PLAYER)) {
+                p = (Player) h.getPassenger();
+            }
+        }
+        if (p != null) {
+            CCArena a = this.plugin.getArenaHandler().getArenaOfPlayer(p);
+            if ((a != null) && (a.isGameisrunning())) {
+                e.setCancelled(true);
+            }
+        }
+        this.plugin.getLoggerUtility().log("EntityDamageEvent handled in " + (System.nanoTime() - time) / 1000000L + " ms", LoggerUtility.Level.DEBUG);
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

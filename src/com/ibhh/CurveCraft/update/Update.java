@@ -24,13 +24,13 @@ public class Update {
             public void run() {
                 if (plugin.getConfigHandler().getConfig().getBoolean("updateCheck")) {
                     try {
-                        plugin.getLoggerUtility().log("Searching update for CurveFever!", LoggerUtility.Level.DEBUG);
-                        Updater updater = new Updater(plugin, 48021, plugin.getPluginFile(), UpdateType.NO_DOWNLOAD, true);
+                        plugin.getLoggerUtility().log("Searching update for CurveCraft!", LoggerUtility.Level.DEBUG);
+                        Updater updater = new Updater(plugin, 81737, plugin.getPluginFile(), UpdateType.NO_DOWNLOAD, true);
                         if (updater.getResult() == UpdateResult.UPDATE_AVAILABLE) {
                             plugin.getLoggerUtility().log("New version: " + updater.getLatestName() + " found!", LoggerUtility.Level.WARNING);
                             plugin.getLoggerUtility().log("******************************************", LoggerUtility.Level.WARNING);
                             plugin.getLoggerUtility().log("*********** Please update!!!! ************", LoggerUtility.Level.WARNING);
-                            plugin.getLoggerUtility().log("http://dev.bukkit.org/server-mods/CurveFever", LoggerUtility.Level.WARNING);
+                            plugin.getLoggerUtility().log("http://dev.bukkit.org/server-mods/CurveCraft", LoggerUtility.Level.WARNING);
                             plugin.getLoggerUtility().log("******************************************", LoggerUtility.Level.WARNING);
                         } else {
                             plugin.getLoggerUtility().log("No update found!", LoggerUtility.Level.DEBUG);

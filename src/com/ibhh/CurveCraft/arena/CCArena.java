@@ -1000,11 +1000,11 @@ public class CCArena {
             /**
              * Fire Event PlayerLeaveEvent
              */
-            APIHandler.throwPlayerGameWinEvent(p, this, score, lobby);
+            APIHandler.throwPlayerGameWinEvent(lobby.get(0), this, score, lobby);
             for (Player s : pla) {
                 plugin.getLoggerUtility().log(s, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.winner"), new Object[]{this.name, ((Player) this.lobby.get(0)).getName()}), LoggerUtility.Level.INFO);
             }
-            removePlayerFromGame(plugin, (Player) this.lobby.get(0));
+            removePlayerFromGame(plugin, lobby.get(0));
             reset(plugin, true);
         }
     }
@@ -1044,7 +1044,7 @@ public class CCArena {
             public void run() {
                 p.teleport(exitloc);
             }
-        }, 15L);
+        }, 40L);
 
         for (Player pl : this.lobby) {
             plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.exit.playerexit"), new Object[]{p.getName()}), LoggerUtility.Level.INFO);

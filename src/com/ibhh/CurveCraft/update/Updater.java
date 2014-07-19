@@ -53,7 +53,7 @@ public class Updater {
     private File file; // The plugin's file
     private Thread thread; // Updater thread
 
-    private int id = -1; // Project's Curse ID
+    private int id = 81737; // Project's Curse ID
     private String apiKey = null; // BukkitDev ServerMods API key
     private static final String TITLE_VALUE = "name"; // Gets remote file's title
     private static final String LINK_VALUE = "downloadUrl"; // Gets remote file's download link

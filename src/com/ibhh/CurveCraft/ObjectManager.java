@@ -16,7 +16,7 @@ public class ObjectManager {
      * use this API in your projects, but please credit the original author of
      * it.
      *
-     * @author Tomsik68<tomsik68@gmail.com>
+     * author Tomsik68<tomsik68@gmail.com>
      */
     public static <T extends Object> void save(T obj, String path) throws Exception {
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path));
