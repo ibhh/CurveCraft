@@ -1,7 +1,6 @@
 package com.ibhh.CurveCraft.arena;
 
 import com.ibhh.CurveCraft.CurveCraft;
-import static com.ibhh.CurveCraft.arena.CCArena.getLookAtYaw;
 import com.ibhh.CurveCraft.logger.LoggerUtility;
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +54,7 @@ public class CCArena {
 
     private boolean gameisrunning = false;
     private boolean roundrunning = false;
-    
+
     private boolean lightning = true;
 
     private int pointsneeded = -1;
@@ -123,8 +122,12 @@ public class CCArena {
             this.invincible = 60;
             this.invincible_standard = 60;
         }
-        
-        this.lightning = arena_save.getBoolean("arena.lightning");
+
+        if (!arena_save.contains("arena.lightning")) {
+            this.lightning = true;
+        } else {
+            this.lightning = arena_save.getBoolean("arena.lightning");
+        }
 
         this.invincible_standard = invincible;
 
@@ -240,6 +243,10 @@ public class CCArena {
         return this.pointsneeded;
     }
 
+    /**
+     * HashMap with the score of each player inside this arena
+     * @return Hashmap
+     */
     public HashMap<Player, Integer> getScore() {
         return this.score;
     }
@@ -272,6 +279,10 @@ public class CCArena {
         this.lobbyloc = lobbyloc;
     }
 
+    /**
+     * Get a ArrayList of players which are alive. Can be empty
+     * @return ArrayList
+     */
     public ArrayList<Player> getAlive() {
         return this.alive;
     }
@@ -280,6 +291,11 @@ public class CCArena {
         return this.exitloc;
     }
 
+    
+    /**
+     * List contains all players which voted to start the game
+     * @return ArrayList
+     */
     public ArrayList<Player> getVoted() {
         return this.voted;
     }
@@ -292,22 +308,44 @@ public class CCArena {
         this.gameisrunning = gameisrunning;
     }
 
+    /**
+     * Maximum amount of players allowed in this arena
+     * @return int
+     */
     public int getMaxplayers() {
         return this.maxplayers;
     }
 
+    /**
+     * Required amount of players for a game in this arena
+     * @return int
+     */
     public int getMinplayers() {
         return this.minplayers;
     }
 
+    /**
+     * Name of the arena
+     * @return String
+     */
     public String getName() {
         return this.name;
     }
 
+    
+    /**
+     * Get the speed of the horses of this arena
+     * --- normalized vektor * speed = velocity
+     * @return double
+     */
     public double getSpeed() {
         return this.speed;
     }
 
+    /**
+     * set the horse speed
+     * @param speed 
+     */
     public void setSpeed(double speed) {
         this.speed = speed;
     }
@@ -316,16 +354,21 @@ public class CCArena {
         return this.gameisrunning;
     }
 
+    
+    /**
+     * Gives a ArrayList of players which are in this lobby / game
+     * @return ArrayList
+     */
     public ArrayList<Player> getLobby() {
         return this.lobby;
     }
 
+    /**
+     * Contains colors of the planes for each player
+     * @return 
+     */
     public HashMap<Player, DyeColor> getHorses() {
         return this.horses;
-    }
-
-    private HashMap<Player, Integer> getGap() {
-        return this.gap;
     }
 
     private int getInvincible() {
@@ -340,6 +383,11 @@ public class CCArena {
         return this.timebeforeround;
     }
 
+    /**
+     * Saves the arena to config file
+     * @param plugin a CurveCraft instance
+     * @return true on success
+     */
     public boolean saveToFolder(CurveCraft plugin) {
         String world = this.corner1.getWorld().getName();
         File f1 = new File(plugin.getDataFolder() + File.separator + "arena-saves" + File.separator + world);
@@ -375,6 +423,11 @@ public class CCArena {
         return true;
     }
 
+    /**
+     * Used to add new default values, to update the config to new versions :D
+     * @param plugin a CurveCraft instance (data folder and error logging)
+     * @return true on success
+     */
     public boolean updateSave(CurveCraft plugin) {
         String world = this.corner1.getWorld().getName();
         File f1 = new File(plugin.getDataFolder() + File.separator + "arena-saves" + File.separator + world);
@@ -410,6 +463,12 @@ public class CCArena {
         return true;
     }
 
+    /**
+     * Create folders for config
+     * @param plugin a CurveCraft instance
+     * @param configl config file
+     * @return  YamlConfiguration on success else null
+     */
     private YamlConfiguration prepareSave(CurveCraft plugin, File configl) {
         File folder = new File(plugin.getDataFolder() + File.separator);
         folder.mkdirs();
@@ -425,6 +484,14 @@ public class CCArena {
         return YamlConfiguration.loadConfiguration(configl);
     }
 
+    /**
+     * Manages voting
+     * @param plugin a CurveCraft instance (used for language config)
+     * @param player the player which votes
+     * @throws NotInLobbyorGameException if the player is not in a lobby
+     * @throws AlreadyVotedException if the player has already voted
+     * @throws VotingNotEnabledException if voting is not enabled for this arena
+     */
     public void voteForStart(CurveCraft plugin, Player player) throws NotInLobbyorGameException, AlreadyVotedException, VotingNotEnabledException {
         if (!this.allowstartwithoutmaxplayers) {
             throw new VotingNotEnabledException(plugin.getConfigHandler().getLanguage_config().getString("start.votingnotenabled"));
@@ -442,7 +509,13 @@ public class CCArena {
         }
     }
 
-    private void die(final CurveCraft plugin, final Player p, boolean crash) {
+    /**
+     * Removes a player from a running round and teleports him to the endloc
+     * @param plugin a CurveCraft insance
+     * @param p the Player that should be removed.
+     * @param crash if the reason for removal is a crash this have to be true (if he is the last player in the round this is true)
+     */
+    private void die(final CurveCraft plugin, final Player p, final boolean crash) {
         plugin.getLoggerUtility().log("player " + p.getName() + " died!", LoggerUtility.Level.DEBUG);
 
         Entity e = p.getVehicle();
@@ -457,20 +530,20 @@ public class CCArena {
         this.score.remove(p);
         this.score.put(p, sco);
         this.alive.remove(p);
-        
-        if(crash && lightning) {
-            corner1.getWorld().strikeLightning(p.getLocation());
+
+        if (crash && lightning) {
+            corner1.getWorld().strikeLightningEffect(p.getLocation());
         }
-        
+
         p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000, 1), true);
         final ScoreboardManager manager = Bukkit.getScoreboardManager();
 
         plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
             @Override
             public void run() {
-                p.teleport(CCArena.this.endloc);
+                p.teleport(endloc);
             }
-        }, 15L);
+        }, 40L);
 
         for (Player pl : this.lobby) {
             Scoreboard board = manager.getNewScoreboard();
@@ -489,7 +562,7 @@ public class CCArena {
         if (this.alive.size() == 1) {
             plugin.getLoggerUtility().log("last player was: " + ((Player) this.alive.get(0)).getName(), LoggerUtility.Level.DEBUG);
             for (Player pl : this.lobby) {
-                plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("round.winner"), new Object[]{((Player) this.alive.get(0)).getName()}), LoggerUtility.Level.INFO);
+                plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("round.winner"), this.alive.get(0).getName()), LoggerUtility.Level.INFO);
             }
             die(plugin, (Player) this.alive.get(0), false);
             roundrunning = false;
@@ -512,10 +585,17 @@ public class CCArena {
 
                         plugin.getMetricsHandler().addPlayersFinished(CCArena.this.lobby.size());
                         Player[] pla = plugin.getServer().getOnlinePlayers();
-                        for (Player s : pla) {
-                            Scoreboard board = manager.getNewScoreboard();
-                            s.setScoreboard(board);
-                            plugin.getLoggerUtility().log(s, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.winner"), hasWinner().getName(), getName()), LoggerUtility.Level.INFO);
+                        for (final Player s : pla) {
+                            plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    ScoreboardManager manager = Bukkit.getScoreboardManager();
+                                    Scoreboard board = manager.getNewScoreboard();
+                                    p.setScoreboard(board);
+                                }
+                            }, 200L);
+                            plugin.getLoggerUtility().log(s, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.winner"), getName(), hasWinner().getName()), LoggerUtility.Level.INFO);
                         }
                         plugin.getLoggerUtility().log("passed gameticks: " + (CCArena.this.invincible - 20), LoggerUtility.Level.DEBUG);
 
@@ -533,30 +613,52 @@ public class CCArena {
         }
     }
     
+    /**
+     * Starts a game without voting. 
+     * @param plugin
+     * @throws StartGameException if the game is already running, or if there are not two players in the lobby.
+     */
     public void forcestart(final CurveCraft plugin) throws StartGameException {
-        if(lobby.size() >= 2) {
+        if (gameisrunning) {
+            throw new StartGameException(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.gamerunning"));
+        }
+        if (lobby.size() >= 2) {
             initGame(plugin, false);
         } else {
             throw new StartGameException(plugin.getConfigHandler().getLanguage_config().getString("start.forcestart.fail"));
         }
     }
 
+    /**
+     * Checks if the game has already a winner
+     * @return if yes, it returns the player object, else null
+     */
     private Player hasWinner() {
         int i = -1;
+        int i2 = -1;
         Player pi = null;
         for (Player p : this.lobby) {
-            if ((i == -1) && (((Integer) this.score.get(p)).intValue() >= this.pointsneeded)) {
-                i = ((Integer) this.score.get(p)).intValue();
+            if ((i == -1) && ((this.score.get(p)) >= this.pointsneeded)) {
+                i = (this.score.get(p));
                 pi = p;
             }
-            if ((i != -1) && (((Integer) this.score.get(p)).intValue() > i)) {
-                i = ((Integer) this.score.get(p)).intValue();
+            if ((i != -1) && ((this.score.get(p)) > i)) {
+                i2 = i;
+                i = (this.score.get(p));
                 pi = p;
             }
+        }
+        if ((i - i2) < 2) {
+            return null;
         }
         return pi;
     }
 
+    
+    /**
+     * Manages game mechanics (like horse behavior or crashing)
+     * @param plugin a CurveCraft instance
+     */
     private void gametick(final CurveCraft plugin) {
         if (!gameisrunning || !roundrunning) {
             return;
@@ -583,18 +685,16 @@ public class CCArena {
                     }
                     if ((this.gap.get(p)) == 0) {
                         this.gap.remove(p);
-                        this.gap.put(p, (int) (-(this.gap_distance * Math.random())) - 1);
+                        this.gap.put(p, (int) (-(this.gap_distance)) - 1);
                     }
                     if ((this.gap.get(p)) > 0) {
                         int z = (this.gap.get(p));
                         this.gap.remove(p);
-                        z--;
-                        this.gap.put(p, z);
+                        this.gap.put(p, --z);
                     } else {
                         int z = (this.gap.get(p));
                         this.gap.remove(p);
-                        z++;
-                        this.gap.put(p, z);
+                        this.gap.put(p, ++z);
                         if (this.invincible <= 0) {
                             plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
                                 @Override
@@ -616,11 +716,11 @@ public class CCArena {
                         plugin.getLoggerUtility().log("player " + p.getName() + " crashed into plane!", LoggerUtility.Level.DEBUG);
                         die(plugin, p, true);
                     }
-
                     h.getLocation().setDirection(p.getLocation().getDirection());
-                    Vector v = p.getLocation().getDirection().normalize();
-                    v.setY(0);
+                    Vector v = p.getLocation().getDirection();
+                    v = v.setY(0).normalize();
                     h.setVelocity(v.multiply(this.speed));
+                    p.getLocation().getDirection().setY(0);
                     plugin.getLoggerUtility().log("p: " + p.getName() + " velocity4 set: " + h.getVelocity().toString(), LoggerUtility.Level.DEBUG);
                     plugin.getLoggerUtility().log("direction: " + p.getLocation().getDirection(), LoggerUtility.Level.DEBUG);
 
@@ -632,10 +732,16 @@ public class CCArena {
 
     }
 
+    /**
+     * Does all what is needed to start the game
+     * @param plugin a CurveCraft instance
+     * @param round if a new round start this must be true, if a new game starts false
+     */
     private void initGame(final CurveCraft plugin, final boolean round) {
         if (!round) {
             plugin.getMetricsHandler().addPlayersPlayed(this.lobby.size());
             plugin.getMetricsHandler().addMatchesStarted();
+            gameisrunning = true;
         }
         for (Player player : this.lobby) {
             if (round) {
@@ -645,6 +751,7 @@ public class CCArena {
             }
         }
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+            @Override
             public void run() {
                 try {
                     int time = round ? CCArena.this.timebeforeround : CCArena.this.timebeforegame;
@@ -688,7 +795,6 @@ public class CCArena {
                         plugin.getLoggerUtility().log(player, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.color"), horses.get(player).name()), LoggerUtility.Level.INFO);
                     }
                     pointsneeded = (CCArena.this.lobby.size() - 1) * 10;
-                    gameisrunning = true;
                 }
                 roundrunning = true;
             }
@@ -706,6 +812,10 @@ public class CCArena {
         return min;
     }
 
+    /**
+     * Calculates player positions and manages teleport
+     * @param plugin a CurveCraft instance
+     */
     private void startGame(CurveCraft plugin) {
         for (Player player : this.lobby) {
             Location ploc = null;
@@ -741,7 +851,7 @@ public class CCArena {
                 }
                 trys++;
 
-                ploc = new Location(this.corner1.getWorld(), topLeftCorner.getBlockX()+ 1 + (xrange - 2) * Math.random(), this.corner1.getBlockY() + 1, bottomRightCorner.getBlockZ() + 1 + (zrange - 2) * Math.random());
+                ploc = new Location(this.corner1.getWorld(), topLeftCorner.getBlockX() + 1 + (xrange - 2) * Math.random(), this.corner1.getBlockY() + 1, bottomRightCorner.getBlockZ() + 1 + (zrange - 2) * Math.random());
             } while (minDistToNextPlayer(ploc) < 100.0D);
 
             plugin.getLoggerUtility().log("finished calculation for player positions", LoggerUtility.Level.DEBUG);
@@ -821,7 +931,7 @@ public class CCArena {
             DyeColor dye = null;
             switch (this.horses.size()) {
                 case 0:
-                    dye = DyeColor.BLACK;
+                    dye = DyeColor.LIGHT_BLUE;
                     break;
                 case 1:
                     dye = DyeColor.BLUE;
@@ -839,7 +949,7 @@ public class CCArena {
                     dye = DyeColor.GREEN;
                     break;
                 case 6:
-                    dye = DyeColor.LIGHT_BLUE;
+                    dye = DyeColor.BLACK;
                     break;
                 case 7:
                     dye = DyeColor.LIME;
@@ -877,7 +987,7 @@ public class CCArena {
 
     }
 
-    public static float getLookAtYaw(Vector motion) {
+    private static float getLookAtYaw(Vector motion) {
         double dx = motion.getX();
         double dz = motion.getZ();
         double yaw = 0.0D;
@@ -895,7 +1005,7 @@ public class CCArena {
         return (float) (-yaw * 180.0D / 3.141592653589793D - 90.0D);
     }
 
-    public float getYaw(Location source, Location target) {
+    private float getYaw(Location source, Location target) {
         double disX = source.getX() - target.getX();
         double disY = source.getY() - target.getY();
         double disZ = source.getZ() - target.getZ();
@@ -916,6 +1026,12 @@ public class CCArena {
         return getLookAtYaw(new Vector(X, Y, Z));
     }
 
+    /**
+     * Adds a player to a game that isn't running yet
+     * @param plugin a CurveCraft instance
+     * @param p Player that should be added
+     * @throws LobbyJoinException if the game is running, or the lobby has 16 players and is full
+     */
     public void addPlayerToLobby(CurveCraft plugin, Player p) throws LobbyJoinException {
         if (this.gameisrunning) {
             throw new LobbyJoinException(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.gamerunning"));
@@ -925,18 +1041,18 @@ public class CCArena {
         }
         plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.message1"), new Object[]{getName()}), LoggerUtility.Level.INFO);
         if (this.allowstartwithoutmaxplayers) {
-            plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.message3"), new Object[]{Integer.valueOf(this.minplayers)}), LoggerUtility.Level.INFO);
+            plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.message3"), new Object[]{this.minplayers}), LoggerUtility.Level.INFO);
         }
-        plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.message4"), new Object[]{Integer.valueOf(this.maxplayers)}), LoggerUtility.Level.INFO);
-        plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.message2"), new Object[]{Integer.valueOf(this.lobby.size() + 1)}), LoggerUtility.Level.INFO);
+        plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.message4"), new Object[]{this.maxplayers}), LoggerUtility.Level.INFO);
+        plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.message2"), new Object[]{this.lobby.size() + 1}), LoggerUtility.Level.INFO);
 
         p.teleport(this.lobbyloc);
         for (Player pl : this.lobby) {
             plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.playerjoin"), new Object[]{p.getName()}), LoggerUtility.Level.INFO);
-            plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.message2"), new Object[]{Integer.valueOf(this.lobby.size() + 1)}), LoggerUtility.Level.INFO);
+            plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.message2"), new Object[]{this.lobby.size() + 1}), LoggerUtility.Level.INFO);
         }
         this.lobby.add(p);
-        this.score.put(p, Integer.valueOf(0));
+        this.score.put(p, 0);
         p.setFoodLevel(20);
         p.setSprinting(false);
         p.setAllowFlight(false);
@@ -967,6 +1083,12 @@ public class CCArena {
         }
     }
 
+    /**
+     * Used if a player leaves game/lobby
+     * @param plugin a CurveCraft instance
+     * @param p the player
+     * @throws NotInLobbyorGameException if the player is not in a lobby/game 
+     */
     public void removePlayer(CurveCraft plugin, Player p)
             throws NotInLobbyorGameException {
         if (!this.lobby.contains(p)) {
@@ -978,7 +1100,7 @@ public class CCArena {
             removePlayerFromLobby(plugin, p);
         }
         this.score.remove(p);
-        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        final ScoreboardManager manager = Bukkit.getScoreboardManager();
         for (Player pl : this.lobby) {
             Scoreboard board = manager.getNewScoreboard();
             Objective objective = board.registerNewObjective("cfboard", "dummy");
@@ -989,7 +1111,7 @@ public class CCArena {
             }
             pl.setScoreboard(board);
         }
-        Scoreboard board = manager.getNewScoreboard();
+        final Scoreboard board = manager.getNewScoreboard();
         p.setScoreboard(board);
         /**
          * Fire Event PlayerLeaveEvent
@@ -1001,7 +1123,17 @@ public class CCArena {
              * Fire Event PlayerLeaveEvent
              */
             APIHandler.throwPlayerGameWinEvent(lobby.get(0), this, score, lobby);
-            for (Player s : pla) {
+            for (final Player s : pla) {
+
+                plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+
+                    @Override
+                    public void run() {
+                        ScoreboardManager manager = Bukkit.getScoreboardManager();
+                        Scoreboard board = manager.getNewScoreboard();
+                        s.setScoreboard(board);
+                    }
+                }, 200L);
                 plugin.getLoggerUtility().log(s, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.winner"), new Object[]{this.name, ((Player) this.lobby.get(0)).getName()}), LoggerUtility.Level.INFO);
             }
             removePlayerFromGame(plugin, lobby.get(0));
@@ -1052,6 +1184,11 @@ public class CCArena {
         plugin.getLoggerUtility().log(p, plugin.getConfigHandler().getLanguage_config().getString("game.exit.message"), LoggerUtility.Level.INFO);
     }
 
+    /**
+     * Clears arena for new game/round (not public because there will occure bugs with scorebord, effects and eventhandler)
+     * @param plugin a CurveCraft instance
+     * @param end true, if the game is over
+     */
     private void reset(CurveCraft plugin, boolean end) {
         long time = System.nanoTime();
         if (end) {
@@ -1064,9 +1201,7 @@ public class CCArena {
                 for (PotionEffect ef : p.getActivePotionEffects()) {
                     p.removePotionEffect(ef.getType());
                 }
-                ScoreboardManager manager = Bukkit.getScoreboardManager();
-                Scoreboard board = manager.getNewScoreboard();
-                p.setScoreboard(board);
+
                 plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
                     @Override
                     public void run() {

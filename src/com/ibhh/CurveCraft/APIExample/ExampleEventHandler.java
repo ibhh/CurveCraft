@@ -28,37 +28,30 @@ public class ExampleEventHandler extends CCEventHandler {
 
     @Override
     public void PlayerCrashedEvent(CCArena a, Player p, CrashReason r) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void PlayerRoundWinEvent(CCArena a, Player p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void PlayerGameWinEvent(CCArena a, Player p, HashMap<Player, Integer> score, ArrayList<Player> lobby) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void GameStartEvent(CCArena a) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void RoundStartEvent(CCArena a) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void PlayerJoinEvent(CCArena a, Player p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void PlayerLeaveEvent(CCArena a, Player p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

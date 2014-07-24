@@ -25,7 +25,10 @@ public class Help {
             for (String command : this.plugin.getCommands()) {
                 if ((!this.plugin.getConfigHandler().getLanguage_config().getString("commands." + command + ".name").equalsIgnoreCase(args[0]))
                         || (!this.plugin.getPermissions().checkpermissions(player, this.plugin.getConfigHandler().getLanguage_config().getString("commands." + command + ".permission")))) {
-                    continue;
+                    if (!args[0].equalsIgnoreCase("help")) {
+                        continue;
+                    }
+
                 }
                 this.plugin.getLoggerUtility().log(player, "-----------", LoggerUtility.Level.INFO);
                 this.plugin.getLoggerUtility().log(player, this.plugin.getConfigHandler().getLanguage_config().getString("commands." + command + ".usage"), LoggerUtility.Level.INFO);

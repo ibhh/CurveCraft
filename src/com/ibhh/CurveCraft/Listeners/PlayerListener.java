@@ -13,6 +13,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityCombustEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
@@ -89,7 +91,7 @@ public class PlayerListener
         if ((this.plugin.isEnabled()) && (event.getMessage().toLowerCase().startsWith("/cf".toLowerCase())) && (this.plugin.getConfigHandler().getConfig().getBoolean("debugfile"))
                 && (this.plugin.getPrivacy().getConfig().containsKey(event.getPlayer().getName()))) {
             this.plugin.getLoggerUtility().log("user privacy set", LoggerUtility.Level.DEBUG);
-            if (((Boolean) this.plugin.getPrivacy().getConfig().get(event.getPlayer().getName())).booleanValue()) {
+            if ((this.plugin.getPrivacy().getConfig().get(event.getPlayer().getName()))) {
                 this.plugin.getLoggerUtility().log("userdata not allowed", LoggerUtility.Level.DEBUG);
                 this.plugin.getLoggerUtility().log("Player: Anonymous command: " + event.getMessage(), LoggerUtility.Level.DEBUG);
             } else {
@@ -126,26 +128,77 @@ public class PlayerListener
         this.plugin.getLoggerUtility().log("PlayerInteractEvent handled in " + (System.nanoTime() - time) / 1000000L + " ms", LoggerUtility.Level.DEBUG);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(EntityDamageEvent e) {
         long time = System.nanoTime();
         Player p = null;
         if (e.getEntityType().equals(EntityType.PLAYER)) {
             p = (Player) e.getEntity();
         }
-        if(e.getEntityType().equals(EntityType.HORSE)) {
+        if (e.getEntityType().equals(EntityType.HORSE)) {
             Horse h = (Horse) e.getEntity();
-            if(h.getPassenger() != null && !h.getPassenger().isEmpty() && h.getPassenger().getType().equals(EntityType.PLAYER)) {
+            if (h.getPassenger() != null && !h.getPassenger().isEmpty() && h.getPassenger().getType().equals(EntityType.PLAYER)) {
                 p = (Player) h.getPassenger();
             }
         }
         if (p != null) {
             CCArena a = this.plugin.getArenaHandler().getArenaOfPlayer(p);
-            if ((a != null) && (a.isGameisrunning())) {
+            if (a != null) {
+                p.setFireTicks(0);
+                p.setRemainingAir(p.getMaximumAir());
                 e.setCancelled(true);
             }
         }
         this.plugin.getLoggerUtility().log("EntityDamageEvent handled in " + (System.nanoTime() - time) / 1000000L + " ms", LoggerUtility.Level.DEBUG);
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onEntityDamage(final EntityDamageByEntityEvent e) {
+        long time = System.nanoTime();
+        Player p = null;
+        if (e.getEntityType().equals(EntityType.PLAYER)) {
+            p = (Player) e.getEntity();
+        }
+        if (e.getEntityType().equals(EntityType.HORSE)) {
+            Horse h = (Horse) e.getEntity();
+            if (h.getPassenger() != null && !h.getPassenger().isEmpty() && h.getPassenger().getType().equals(EntityType.PLAYER)) {
+                p = (Player) h.getPassenger();
+            }
+        }
+        if (p != null) {
+            CCArena a = this.plugin.getArenaHandler().getArenaOfPlayer(p);
+            if (a != null) {
+                p.setFireTicks(0);
+                p.setRemainingAir(p.getMaximumAir());
+                e.setCancelled(true);
+            }
+        }
+        this.plugin.getLoggerUtility().log("EntityDamagebyEntityEvent handled in " + (System.nanoTime() - time) / 1000000L + " ms", LoggerUtility.Level.DEBUG);
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onEntityCombust(final EntityCombustEvent e) {
+        long time = System.nanoTime();
+        Player p = null;
+        if (e.getEntityType().equals(EntityType.PLAYER)) {
+            p = (Player) e.getEntity();
+        }
+        if (e.getEntityType().equals(EntityType.HORSE)) {
+            Horse h = (Horse) e.getEntity();
+            if (h.getPassenger() != null && !h.getPassenger().isEmpty() && h.getPassenger().getType().equals(EntityType.PLAYER)) {
+                p = (Player) h.getPassenger();
+            }
+        }
+        if (p != null) {
+            CCArena a = this.plugin.getArenaHandler().getArenaOfPlayer(p);
+            if (a != null) {
+                p.setFireTicks(0);
+                p.setRemainingAir(p.getMaximumAir());
+                e.setCancelled(true);
+            }
+        }
+        this.plugin.getLoggerUtility().log("EntityCombustEvent handled in " + (System.nanoTime() - time) / 1000000L + " ms", LoggerUtility.Level.DEBUG);
+
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

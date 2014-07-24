@@ -97,7 +97,7 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("privacy.notification.allowed", "Das Plugin speichert deine Daten, wende Dich an einen Admin um diese z.B. loeschen zu lassen");
 
                 this.language_config.addDefault("create.notfinished.start", "Du musst einen Namen und zwei Ecken fuer die Arena setzen! Benutze /cc setname NAME und /cc setcorner1 /cc setcorner2 um deine aktuelle Position als Ecke zu setzen!");
-                this.language_config.addDefault("create.notfinished.start2", "Und eine Position für die Lobby /cc setlobby und eine Position fuer ausgeschieden Spieler /cc setend and eine exit Position mit /cc setexit");
+                this.language_config.addDefault("create.notfinished.start2", "Und eine Position für die Lobby /cc setlobby und eine Position fuer ausgeschieden Spieler /cc setend and eine exit Position mit /cc setexit. Schliesse den Prozess mit /cc finish ab");
 
                 this.language_config.addDefault("create.notfinished.name", "Name gesetzt");
                 this.language_config.addDefault("create.finished", "Abgeschlossen");
@@ -174,7 +174,7 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("commands.forcestart.name", "forcestart");
                 this.language_config.addDefault("commands.forcestart.permission", "CurveCraft.forcestart");
                 this.language_config.addDefault("commands.forcestart.description", "startet Spiel frueher.");
-                this.language_config.addDefault("commands.forcestart.usage", "/cc forcestart");
+                this.language_config.addDefault("commands.forcestart.usage", "/cc forcestart ARENANAME");
 
                 this.language_config.addDefault("game.exit.message", "Du hast das Spiel verlassen.");
                 this.language_config.addDefault("game.exit.playerexit", "%s hat das Spiel verlassen.");
@@ -261,7 +261,7 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("privacy.notification.allowed", "The plugin saves your data now, to delete the data, please tell an admin");
 
                 this.language_config.addDefault("create.notfinished.start", "You must set a name and two corners for the arena! Use /cc setname NAME and /cc setcorner1 /cc setcorner2 to set your position as corner!");
-                this.language_config.addDefault("create.notfinished.start2", "And a position for the lobby /cc setlobby and a position for eleminated player /cc setend and an exit position /cc setexit");
+                this.language_config.addDefault("create.notfinished.start2", "And a position for the lobby /cc setlobby and a position for eleminated player /cc setend and an exit position /cc setexit. Finish the process with /cc finish");
 
                 this.language_config.addDefault("create.notfinished.name", "Name set");
                 this.language_config.addDefault("create.finished", "Finished!");
@@ -329,7 +329,7 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("round.winner", "The winner of this round is: %s");
                 this.language_config.addDefault("game.winner", "The winner of arena %s is: %s");
                 this.language_config.addDefault("game.crashed", "You crashed!");
-                this.language_config.addDefault("game.crash.wand", "You crashed into a wand!");
+                this.language_config.addDefault("game.crash.wand", "You crashed into a limitation!");
                 this.language_config.addDefault("game.crash.plane", "You crashed into plane!");
                 this.language_config.addDefault("game.color", "Your colour ist: %s");
 
@@ -354,7 +354,7 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("commands.forcestart.name", "forcestart");
                 this.language_config.addDefault("commands.forcestart.permission", "CurveCraft.forcestart");
                 this.language_config.addDefault("commands.forcestart.description", "start game earlier.");
-                this.language_config.addDefault("commands.forcestart.usage", "/cc forcestart");
+                this.language_config.addDefault("commands.forcestart.usage", "/cc forcestart ARENANAME");
 
                 this.language_config.addDefault("commands.start.name", "start");
                 this.language_config.addDefault("commands.start.permission", "CurveCraft.play");
