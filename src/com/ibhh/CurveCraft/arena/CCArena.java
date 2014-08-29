@@ -1183,12 +1183,13 @@ public class CCArena {
         for (Player pl : this.lobby) {
             plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.exit.playerexit"), new Object[]{p.getName()}), LoggerUtility.Level.INFO);
         }
+        p.teleport(exitloc);
         plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
             @Override
             public void run() {
                 p.teleport(exitloc);
             }
-        }, 15L);
+        }, 20L);
 
         plugin.getLoggerUtility().log(p, plugin.getConfigHandler().getLanguage_config().getString("lobby.exit.message"), LoggerUtility.Level.INFO);
     }
@@ -1207,6 +1208,7 @@ public class CCArena {
         for (PotionEffect ef : p.getActivePotionEffects()) {
             p.removePotionEffect(ef.getType());
         }
+        p.teleport(exitloc);
         plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
             @Override
             public void run() {

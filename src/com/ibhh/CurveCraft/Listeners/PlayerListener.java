@@ -2,8 +2,12 @@ package com.ibhh.CurveCraft.Listeners;
 
 import com.ibhh.CurveCraft.CurveCraft;
 import com.ibhh.CurveCraft.arena.CCArena;
+import com.ibhh.CurveCraft.arena.LobbyJoinException;
 import com.ibhh.CurveCraft.arena.NotInLobbyorGameException;
 import com.ibhh.CurveCraft.logger.LoggerUtility;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Horse;
@@ -133,12 +137,39 @@ public class PlayerListener
         CCArena a = this.plugin.getArenaHandler().getArenaOfPlayer(e.getPlayer());
         if ((a != null) && (a.isGameisrunning())) {
             e.setCancelled(true);
+        } else if (e.hasBlock()) {
+            Block b = e.getClickedBlock();
+            if (!e.getPlayer().isSneaking() && b != null && b.getState() instanceof Sign) {
+                plugin.getLoggerUtility().log("Sign clicked!", LoggerUtility.Level.DEBUG);
+                Sign s = (Sign) b.getState();
+                if (s.getLines().length > 0 && s.getLine(0).toLowerCase().contains("ccjoin")) {
+                    plugin.getLoggerUtility().log("Has ccjoin", LoggerUtility.Level.DEBUG);
+                    String arenastring = s.getLine(0).split(" ")[1];
+                    if (plugin.getPermissions().checkpermissions(e.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("commands.join.permission"))) {
+                        if (plugin.getArenaHandler().getArenaOfPlayer(e.getPlayer()) != null) {
+                            plugin.getLoggerUtility().log(e.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("lobby.join.already"), LoggerUtility.Level.ERROR);
+                        } else {
+                            CCArena arena = plugin.getArenaHandler().getArenaByName(arenastring);
+                            if (arena == null) {
+                                plugin.getLoggerUtility().log(e.getPlayer(), String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), arenastring), LoggerUtility.Level.ERROR);
+                            } else if ((plugin.getConfigHandler().getConfig().getBoolean("everyArenaOwnJoinPermission") && (plugin.getPermissions().checkpermissions(e.getPlayer(), new StringBuilder().append("CurveFerver.join.").append(arenastring).toString()))) || (!plugin.getConfigHandler().getConfig().getBoolean("everyArenaOwnJoinPermission"))) {
+                                try {
+                                    arena.addPlayerToLobby(plugin, e.getPlayer());
+                                } catch (LobbyJoinException ex) {
+                                    plugin.getLoggerUtility().log(e.getPlayer(), ex.getMessage(), LoggerUtility.Level.ERROR);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         this.plugin.getLoggerUtility().log("PlayerInteractEvent handled in " + (System.nanoTime() - time) / 1000000L + " ms", LoggerUtility.Level.DEBUG);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onDamage(EntityDamageEvent e) {
+    public void onDamage(EntityDamageEvent e
+    ) {
         long time = System.nanoTime();
         Player p = null;
         if (e.getEntityType().equals(EntityType.PLAYER)) {
@@ -162,7 +193,8 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onEntityDamage(final EntityDamageByEntityEvent e) {
+    public void onEntityDamage(final EntityDamageByEntityEvent e
+    ) {
         long time = System.nanoTime();
         Player p = null;
         if (e.getEntityType().equals(EntityType.PLAYER)) {
@@ -186,7 +218,8 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void onEntityCombust(final EntityCombustEvent e) {
+    public void onEntityCombust(final EntityCombustEvent e
+    ) {
         long time = System.nanoTime();
         Player p = null;
         if (e.getEntityType().equals(EntityType.PLAYER)) {
@@ -211,7 +244,8 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onWorldChange(PlayerChangedWorldEvent e) {
+    public void onWorldChange(PlayerChangedWorldEvent e
+    ) {
         long time = System.nanoTime();
         if (this.plugin.getArenaHandler().getArenaOfPlayer(e.getPlayer()) != null) {
             try {
@@ -223,7 +257,8 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onKick(PlayerKickEvent e) {
+    public void onKick(PlayerKickEvent e
+    ) {
         long time = System.nanoTime();
         if (this.plugin.getArenaHandler().getArenaOfPlayer(e.getPlayer()) != null) {
             try {
@@ -235,7 +270,8 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onLeave(PlayerQuitEvent e) {
+    public void onLeave(PlayerQuitEvent e
+    ) {
         long time = System.nanoTime();
         if (this.plugin.getArenaHandler().getArenaOfPlayer(e.getPlayer()) != null) {
             try {
@@ -247,7 +283,8 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onSprint(PlayerToggleSprintEvent e) {
+    public void onSprint(PlayerToggleSprintEvent e
+    ) {
         long time = System.nanoTime();
         if (this.plugin.getArenaHandler().getArenaOfPlayer(e.getPlayer()) != null) {
             this.plugin.getLoggerUtility().log("PlayerSprint canceled!", LoggerUtility.Level.DEBUG);
@@ -257,7 +294,8 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onEffect(PlayerItemConsumeEvent e) {
+    public void onEffect(PlayerItemConsumeEvent e
+    ) {
         long time = System.nanoTime();
         if (this.plugin.getArenaHandler().getArenaOfPlayer(e.getPlayer()) != null) {
             e.setCancelled(true);
@@ -266,7 +304,8 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onDrop(PlayerDropItemEvent e) {
+    public void onDrop(PlayerDropItemEvent e
+    ) {
         long time = System.nanoTime();
         if (this.plugin.getArenaHandler().getArenaOfPlayer(e.getPlayer()) != null) {
             e.setCancelled(true);
@@ -275,7 +314,8 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onPlace(BlockPlaceEvent e) {
+    public void onPlace(BlockPlaceEvent e
+    ) {
         long time = System.nanoTime();
         if (this.plugin.getArenaHandler().getArenaOfPlayer(e.getPlayer()) != null) {
             e.setCancelled(true);
@@ -284,7 +324,8 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onHunger(FoodLevelChangeEvent e) {
+    public void onHunger(FoodLevelChangeEvent e
+    ) {
         long time = System.nanoTime();
         if (((e.getEntity() instanceof Player))
                 && (this.plugin.getArenaHandler().getArenaOfPlayer((Player) e.getEntity()) != null)) {
@@ -295,7 +336,8 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onAbspringen(VehicleExitEvent e) {
+    public void onAbspringen(VehicleExitEvent e
+    ) {
         long time = System.nanoTime();
         if (((e.getExited() instanceof Player))
                 && (this.plugin.getArenaHandler().getArenaOfPlayer((Player) e.getExited()) != null)) {
@@ -306,7 +348,8 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onDeath(PlayerDeathEvent e) {
+    public void onDeath(PlayerDeathEvent e
+    ) {
         long time = System.nanoTime();
         if (this.plugin.getArenaHandler().getArenaOfPlayer(e.getEntity()) != null) {
             try {
@@ -318,7 +361,8 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onEXPDrop(PlayerExpChangeEvent e) {
+    public void onEXPDrop(PlayerExpChangeEvent e
+    ) {
         long time = System.nanoTime();
         CCArena a = this.plugin.getArenaHandler().getArenaOfPlayer(e.getPlayer());
         if ((a != null) && (a.isGameisrunning())) {
@@ -328,7 +372,8 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onTeleport(PlayerTeleportEvent e) {
+    public void onTeleport(PlayerTeleportEvent e
+    ) {
         long time = System.nanoTime();
 
         this.plugin.getLoggerUtility().log("Player Teleport handled in " + (System.nanoTime() - time) / 1000000L + " ms", LoggerUtility.Level.DEBUG);
