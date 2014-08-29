@@ -200,6 +200,8 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("game.winner", "Der Sieger von Arena %s ist: %s");
 
                 this.language_config.addDefault("round.winner", "Der Sieger dieser Runde ist: %s");
+                
+                this.language_config.addDefault("arena.change", "Erfolgreich geaendert. Schliesse deine ganze Operation am Ende mit /cc resetarena [ARENA] ab.");
 
                 this.language_config.addDefault("commands.help.name", "help");
                 this.language_config.addDefault("commands.help.permission", "CurveCraft.help");
@@ -235,6 +237,21 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("commands.setcorner2.permission", "CurveCraft.create");
                 this.language_config.addDefault("commands.setcorner2.description", "Setzt Ecke 2.");
                 this.language_config.addDefault("commands.setcorner2.usage", "/cc setcorner2");
+                
+                this.language_config.addDefault("commands.changecorner1.name", "changecorner1");
+                this.language_config.addDefault("commands.changecorner1.permission", "CurveCraft.changecorner");
+                this.language_config.addDefault("commands.changecorner1.description", "Setzt Ecke 1 neu.");
+                this.language_config.addDefault("commands.changecorner1.usage", "/cc changecorner1 [ARENA]");
+                
+                this.language_config.addDefault("commands.changecorner2.name", "changecorner2");
+                this.language_config.addDefault("commands.changecorner2.permission", "CurveCraft.changecorner");
+                this.language_config.addDefault("commands.changecorner2.description", "Setzt Ecke 2 neu.");
+                this.language_config.addDefault("commands.changecorner2.usage", "/cc changecorner2 [ARENA]");
+                
+                this.language_config.addDefault("commands.resetarena.name", "resetarena");
+                this.language_config.addDefault("commands.resetarena.permission", "CurveCraft.resetarena");
+                this.language_config.addDefault("commands.resetarena.description", "Setzt die Arena zurueck");
+                this.language_config.addDefault("commands.resetarena.usage", "/cc resetarena [ARENA]");
 
                 this.language_config.addDefault("commands.version.name", "version");
                 this.language_config.addDefault("commands.version.permission", "CurveCraft.version");
@@ -332,6 +349,9 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("game.crash.wand", "You crashed into a limitation!");
                 this.language_config.addDefault("game.crash.plane", "You crashed into plane!");
                 this.language_config.addDefault("game.color", "Your colour ist: %s");
+                
+                
+                this.language_config.addDefault("arena.change", "Successfully changed. Please do /cc resetarena [ARENA] at the end of your operation.");
 
                 this.language_config.addDefault("commands.lobby.name", "lobby");
                 this.language_config.addDefault("commands.lobby.permission", "CurveCraft.play");
@@ -395,6 +415,21 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("commands.setcorner2.permission", "CurveCraft.create");
                 this.language_config.addDefault("commands.setcorner2.description", "Sets corner 2.");
                 this.language_config.addDefault("commands.setcorner2.usage", "/cc setcorner2");
+                
+                this.language_config.addDefault("commands.changecorner1.name", "changecorner1");
+                this.language_config.addDefault("commands.changecorner1.permission", "CurveCraft.changecorner");
+                this.language_config.addDefault("commands.changecorner1.description", "Sets new corner 1");
+                this.language_config.addDefault("commands.changecorner1.usage", "/cc changecorner1 [ARENA]");
+                
+                this.language_config.addDefault("commands.changecorner2.name", "changecorner2");
+                this.language_config.addDefault("commands.changecorner2.permission", "CurveCraft.changecorner");
+                this.language_config.addDefault("commands.changecorner2.description", "Sets new corner 2");
+                this.language_config.addDefault("commands.changecorner2.usage", "/cc changecorner2 [ARENA]");
+                
+                this.language_config.addDefault("commands.resetarena.name", "resetarena");
+                this.language_config.addDefault("commands.resetarena.permission", "CurveCraft.resetarena");
+                this.language_config.addDefault("commands.resetarena.description", "Resets the arena");
+                this.language_config.addDefault("commands.resetarena.usage", "/cc resetarena [ARENA]");
 
                 this.language_config.addDefault("commands.version.name", "version");
                 this.language_config.addDefault("commands.version.permission", "CurveCraft.version");

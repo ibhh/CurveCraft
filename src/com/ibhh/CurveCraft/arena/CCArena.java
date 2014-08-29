@@ -1,12 +1,14 @@
 package com.ibhh.CurveCraft.arena;
 
 import com.ibhh.CurveCraft.CurveCraft;
+import com.ibhh.CurveCraft.commandwhitelist.CommandWhiteList;
 import com.ibhh.CurveCraft.logger.LoggerUtility;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -64,6 +66,8 @@ public class CCArena {
 
     private int invincible = 60;
     private int invincible_standard = 60;
+    
+    private boolean commandwhitelist = false;
 
     private final HashMap<Player, Integer> score = new HashMap<>();
     private final HashMap<Player, DyeColor> horses = new HashMap<>();
@@ -72,6 +76,8 @@ public class CCArena {
     private final ArrayList<Player> alive = new ArrayList<>();
 
     private final HashMap<Player, Integer> gap = new HashMap();
+    
+    private CommandWhiteList commandwhitelistfile = null;
 
     public CCArena(String m, Location l1, Location l2, Location lobbyloc, Location endloc, Location exitloc) {
         this.name = m;
@@ -101,6 +107,8 @@ public class CCArena {
         if (this.gap_length == 0) {
             this.gap_length = 3;
         }
+        
+
 
         this.timebeforegame = arena_save.getInt("arena.timebeforegame");
         if (this.timebeforegame == 0) {
@@ -156,6 +164,15 @@ public class CCArena {
         this.lobbyloc = new Location(world, Integer.parseInt(cc3[0]), Integer.parseInt(cc3[1]), Integer.parseInt(cc3[2]));
         this.endloc = new Location(world, Integer.parseInt(cc4[0]), Integer.parseInt(cc4[1]), Integer.parseInt(cc4[2]));
         this.exitloc = new Location(world, Integer.parseInt(cc5[0]), Integer.parseInt(cc5[1]), Integer.parseInt(cc5[2]));
+        
+        this.commandwhitelist = arena_save.getBoolean("arena.commandwhitelist");
+        
+        try {
+            commandwhitelistfile = new CommandWhiteList(plugin, this);
+        } catch (IOException ex) {
+            Logger.getLogger(CCArena.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
             @Override
             public void run() {
@@ -195,6 +212,23 @@ public class CCArena {
                 && (l.getBlockZ() < topLeftCorner.getBlockZ()) && (l.getBlockZ() > bottomRightCorner.getBlockZ());
     }
 
+    public void setCommandwhitelist(boolean commandwhitelist) {
+        this.commandwhitelist = commandwhitelist;
+    }
+
+    public boolean isCommandwhitelist() {
+        return commandwhitelist;
+    }
+
+    public boolean commandWhiteListed(String s) {
+        if(commandwhitelist == false) {
+            return true;
+        } else {
+            return commandwhitelistfile.allowed(s);
+        }
+    }
+    
+    
     public void setCorner1(Location corner1) {
         this.corner1 = corner1;
     }
@@ -365,7 +399,7 @@ public class CCArena {
 
     /**
      * Contains colors of the planes for each player
-     * @return 
+     * @return HashMap
      */
     public HashMap<Player, DyeColor> getHorses() {
         return this.horses;
@@ -412,6 +446,7 @@ public class CCArena {
         arena_save.set("arena.endloc", getEndloc().getBlockX() + "/" + getEndloc().getBlockY() + "/" + getEndloc().getBlockZ());
         arena_save.set("arena.exitloc", getExitloc().getBlockX() + "/" + getExitloc().getBlockY() + "/" + getExitloc().getBlockZ());
         arena_save.set("arena.lightning", lightning);
+        arena_save.set("arena.commandwhitelist", isCommandwhitelist());
         try {
             arena_save.options().copyDefaults(true);
             arena_save.save(configl);
@@ -452,6 +487,7 @@ public class CCArena {
         arena_save.addDefault("arena.endloc", "-10/0/-10");
         arena_save.addDefault("arena.exitloc", "-15/0/-15");
         arena_save.addDefault("arena.lightning", "true");
+        arena_save.addDefault("arena.commandwhitelist", "false");
         try {
             arena_save.options().copyDefaults(true);
             arena_save.save(configl);

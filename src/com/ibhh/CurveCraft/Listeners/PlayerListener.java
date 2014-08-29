@@ -88,7 +88,10 @@ public class PlayerListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void precommand(PlayerCommandPreprocessEvent event) {
         long time = System.nanoTime();
-        if ((this.plugin.isEnabled()) && (event.getMessage().toLowerCase().startsWith("/cf".toLowerCase())) && (this.plugin.getConfigHandler().getConfig().getBoolean("debugfile"))
+        if (!plugin.isEnabled()) {
+            return;
+        }
+        if ((event.getMessage().toLowerCase().startsWith("/cc".toLowerCase())) && (this.plugin.getConfigHandler().getConfig().getBoolean("debugfile"))
                 && (this.plugin.getPrivacy().getConfig().containsKey(event.getPlayer().getName()))) {
             this.plugin.getLoggerUtility().log("user privacy set", LoggerUtility.Level.DEBUG);
             if ((this.plugin.getPrivacy().getConfig().get(event.getPlayer().getName()))) {
@@ -99,10 +102,16 @@ public class PlayerListener
             }
         }
 
+        CCArena a = plugin.getArenaHandler().getArenaOfPlayer(event.getPlayer());
+        if (a != null && a.isCommandwhitelist() && !a.commandWhiteListed(event.getMessage().split(" ")[0].replace("/", ""))) {
+            event.setCancelled(true);
+            this.plugin.getLoggerUtility().log(event.getPlayer(), "Not allowed! /cc exit", LoggerUtility.Level.ERROR);
+        }
+
         if (((event.getMessage().toLowerCase().contains("tp")) || (event.getMessage().toLowerCase().contains("tt")) || (event.getMessage().toLowerCase().contains("home")))
                 && (this.plugin.getArenaHandler().getArenaOfPlayer(event.getPlayer()) != null)) {
             event.setCancelled(true);
-            this.plugin.getLoggerUtility().log(event.getPlayer(), "Not allowed! /cf exit", LoggerUtility.Level.ERROR);
+            this.plugin.getLoggerUtility().log(event.getPlayer(), "Not allowed! /cc exit", LoggerUtility.Level.ERROR);
         }
 
         this.plugin.getLoggerUtility().log("PlayerCommandPreprocessEvent handled in " + (System.nanoTime() - time) / 1000000L + " ms", LoggerUtility.Level.DEBUG);

@@ -14,10 +14,10 @@ import org.bukkit.entity.Player;
  * @author ibhh
  */
 public class ArenaHandler {
-    
+
     private final CurveCraft plugin;
     private final ArrayList<CCArena> arena = new ArrayList<>();
-    
+
     public ArenaHandler(CurveCraft plugin) {
         this.plugin = plugin;
     }
@@ -30,13 +30,13 @@ public class ArenaHandler {
             File f = new File(plugin.getDataFolder() + File.separator + "arena-saves" + File.separator + world.getName());
             if (f.exists()) {
                 File[] files = f.listFiles(new FileFilter() {
-                    
+
                     @Override
                     public boolean accept(File pathname) {
                         return pathname.getName().contains(".yml");
                     }
                 });
-                
+
                 for (File file : files) {
                     CCArena cf = new CCArena(plugin, file, world);
                     cf.updateSave(plugin);
@@ -47,18 +47,31 @@ public class ArenaHandler {
             }
         }
     }
-    
+
+    public void reset(CCArena a) {
+        File file = new File(plugin.getDataFolder() + File.separator + "arena-saves" + File.separator + a.getCorner1().getWorld().getName() + File.separator + a.getName() + ".yml");
+        if (file.exists()) {
+            CCArena cf = new CCArena(plugin, file, a.getCorner1().getWorld());
+            cf.updateSave(plugin);
+            cf.saveToFolder(plugin);
+            arena.remove(a);
+            arena.add(cf);
+            plugin.getLoggerUtility().log("Arena \"" + file.getName().replace(".yml", "") + "\" in world \"" + a.getCorner1().getWorld().getName() + "\" loaded!", LoggerUtility.Level.INFO);
+        }
+    }
+
     /**
      * Get the list of all arenas
+     *
      * @return ArrayList CCArena
      */
     public ArrayList<CCArena> getArena() {
         return arena;
     }
-    
-    
+
     /**
      * Get the arena by location
+     *
      * @param l Location
      * @return CCArena arena which contains this location
      */
@@ -70,9 +83,10 @@ public class ArenaHandler {
         }
         return null;
     }
-    
+
     /**
      * Get the arena by a player, who is in the arena
+     *
      * @param p
      * @return CCArena / Arena of player
      */
@@ -84,9 +98,10 @@ public class ArenaHandler {
         }
         return null;
     }
-    
+
     /**
      * Returns the arena if the name matches else null
+     *
      * @param s Name of the arena
      * @return Returns the arena if the name matches else null
      */
