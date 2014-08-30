@@ -86,10 +86,6 @@ public class PlayerListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onMove(PlayerMoveEvent e) {
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
     public void precommand(PlayerCommandPreprocessEvent event) {
         long time = System.nanoTime();
         if (!plugin.isEnabled()) {
@@ -107,15 +103,17 @@ public class PlayerListener
         }
 
         CCArena a = plugin.getArenaHandler().getArenaOfPlayer(event.getPlayer());
-        if (a != null && a.isCommandwhitelist() && !a.commandWhiteListed(event.getMessage().split(" ")[0].replace("/", ""))) {
-            event.setCancelled(true);
-            this.plugin.getLoggerUtility().log(event.getPlayer(), "Not allowed! /cc exit", LoggerUtility.Level.ERROR);
+        if (a != null) {
+            if ((!plugin.getConfigHandler().getConfig().getBoolean("globalcommandwhitelist") && a.isCommandwhitelist() && !a.commandWhiteListed(event.getMessage().split(" ")[0].replace("/", ""))) || (plugin.getConfigHandler().getConfig().getBoolean("globalcommandwhitelist") && a.isCommandwhitelist() && !plugin.getArenaHandler().isCommandGlobalWhitelisted(event.getMessage().split(" ")[0].replace("/", "")))) {
+                event.setCancelled(true);
+                this.plugin.getLoggerUtility().log(event.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("commands.notallowed"), LoggerUtility.Level.ERROR);
+            }
         }
 
         if (((event.getMessage().toLowerCase().contains("tp")) || (event.getMessage().toLowerCase().contains("tt")) || (event.getMessage().toLowerCase().contains("home")))
                 && (this.plugin.getArenaHandler().getArenaOfPlayer(event.getPlayer()) != null)) {
             event.setCancelled(true);
-            this.plugin.getLoggerUtility().log(event.getPlayer(), "Not allowed! /cc exit", LoggerUtility.Level.ERROR);
+            this.plugin.getLoggerUtility().log(event.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("commands.notallowed"), LoggerUtility.Level.ERROR);
         }
 
         this.plugin.getLoggerUtility().log("PlayerCommandPreprocessEvent handled in " + (System.nanoTime() - time) / 1000000L + " ms", LoggerUtility.Level.DEBUG);

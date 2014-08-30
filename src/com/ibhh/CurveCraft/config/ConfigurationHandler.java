@@ -115,6 +115,8 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("create.notfinished.lobbyloc", "Es muss eine Lobby-Position mit /cc setlobby gestetzt werden.");
                 this.language_config.addDefault("create.notfinished.endloc", "Es muss eine End-Position mit /cc setend gesetzt werden");
                 this.language_config.addDefault("create.notfinished.exitloc", "Es muss eine Exit-Position mit /cc setexit gesetzt werden");
+                
+                this.language_config.addDefault("commands.notallowed", "Dieser Befehl ist in der Arena nicht erlaubt. Benutze /cc exit");
 
                 this.language_config.addDefault("commands.setexit.name", "setexit");
                 this.language_config.addDefault("commands.setexit.permission", "CurveCraft.create");
@@ -294,6 +296,8 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("create.notfinished.lobbyloc", "You must set a lobby position (/cc setlobby)");
                 this.language_config.addDefault("create.notfinished.endloc", "You must set an end position(/cc setend)");
                 this.language_config.addDefault("create.notfinished.exitloc", "You must set an exit position(/cc setexit)");
+                
+                this.language_config.addDefault("commands.notallowed", "This command isn't allowed in the arena! Use /cc exit");
 
                 this.language_config.addDefault("commands.setexit.name", "setexit");
                 this.language_config.addDefault("commands.setexit.permission", "CurveCraft.create");

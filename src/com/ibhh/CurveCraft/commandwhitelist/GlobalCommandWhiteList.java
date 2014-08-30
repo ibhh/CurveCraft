@@ -1,7 +1,6 @@
 package com.ibhh.CurveCraft.commandwhitelist;
 
 import com.ibhh.CurveCraft.CurveCraft;
-import com.ibhh.CurveCraft.arena.CCArena;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,16 +14,13 @@ import java.util.ArrayList;
  *
  * @author ibhh
  */
-public class CommandWhiteList {
+public class GlobalCommandWhiteList {
 
     private final ArrayList<String> whitelistarray = new ArrayList<>();
 
-    public CommandWhiteList(final CurveCraft plugin, final CCArena arena) throws IOException {
+    public GlobalCommandWhiteList(final CurveCraft plugin) throws IOException {
 
-        File dir = new File(plugin.getDataFolder() + File.separator + "arena-saves" + File.separator + arena.getCorner1().getWorld().getName());
-        dir.mkdirs();
-
-        File file = new File(plugin.getDataFolder() + File.separator + "arena-saves" + File.separator + arena.getCorner1().getWorld().getName() + File.separator + arena.getName() + "_commandwhitelist.txt");
+        File file = new File(plugin.getDataFolder() + File.separator + "globalcommandwhitelist.txt");
 
         if (!file.exists()) {
             file.createNewFile();

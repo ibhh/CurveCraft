@@ -1,10 +1,14 @@
 package com.ibhh.CurveCraft.arena;
 
 import com.ibhh.CurveCraft.CurveCraft;
+import com.ibhh.CurveCraft.commandwhitelist.GlobalCommandWhiteList;
 import com.ibhh.CurveCraft.logger.LoggerUtility;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -17,10 +21,26 @@ public class ArenaHandler {
 
     private final CurveCraft plugin;
     private final ArrayList<CCArena> arena = new ArrayList<>();
+    private GlobalCommandWhiteList globalCommandWhiteList = null;
 
     public ArenaHandler(CurveCraft plugin) {
         this.plugin = plugin;
+        try {
+            globalCommandWhiteList = new GlobalCommandWhiteList(plugin);
+        } catch (IOException ex) {
+            Logger.getLogger(ArenaHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
+
+    public boolean isCommandGlobalWhitelisted(String s) {
+        if(globalCommandWhiteList == null) {
+            return false;
+        } else {
+            return globalCommandWhiteList.allowed(s);
+        }
+    }
+    
+    
 
     /**
      * Loads all areanas
