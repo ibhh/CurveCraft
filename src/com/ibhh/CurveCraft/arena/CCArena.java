@@ -252,13 +252,13 @@ public class CCArena {
         disabled = true;
         updateStatusSign();
     }
-    
+
     private void updateStatusSign() {
         if (statussign != null) {
             Block b = statussign.getBlock();
             if (b != null && b.getState() instanceof Sign) {
                 Sign s = (Sign) b.getState();
-                s.setLine(3, disabled ? (ChatColor.RED + "DISABLED") : ((gameisrunning? ChatColor.GOLD + "RUNNING" : ChatColor.GREEN + "ENABLED") + " " + lobby.size() + "/" + maxplayers));
+                s.setLine(3, disabled ? (ChatColor.RED + "DISABLED") : ((gameisrunning ? ChatColor.GOLD + "RUNNING" : ChatColor.GREEN + "ENABLED") + " " + lobby.size() + "/" + maxplayers));
                 s.update();
             }
         }
@@ -622,7 +622,7 @@ public class CCArena {
             initGame(plugin, false);
         }
     }
-    
+
     /**
      * Removes a player from a running round and teleports him to the endloc
      *
@@ -684,8 +684,8 @@ public class CCArena {
             }
             pl.setScoreboard(board);
         }
-        
-        if(pexit) {
+
+        if (pexit) {
             lobby.remove(p);
         }
 
@@ -697,20 +697,10 @@ public class CCArena {
             for (Player pl : this.lobby) {
                 plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("round.winner"), this.alive.get(0).getName()), LoggerUtility.Level.INFO);
             }
-            die(plugin, (Player) this.alive.get(0), false);
             roundrunning = false;
             pointsneeded = (CCArena.this.lobby.size() - 1) * 10;
-            if (hasWinner() != null) {
-                /**
-                 * Fire event PlayerGameWinEvent
-                 */
-                APIHandler.throwPlayerGameWinEvent(p, this, score, lobby);
-            } else {
-                /**
-                 * Fire event PlayerRoundWinEvent
-                 */
-                APIHandler.throwPlayerRoundWinEvent(p, this);
-            }
+
+            die(plugin, (Player) this.alive.get(0), false);
 
             plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
                 @Override
@@ -718,18 +708,21 @@ public class CCArena {
                     if (hasWinner() != null) {
 
                         plugin.getMetricsHandler().addPlayersFinished(CCArena.this.lobby.size());
-                        Player[] pla = plugin.getServer().getOnlinePlayers();
-                        for (final Player s : pla) {
+                        for (final Player s : lobby) {
                             plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
 
                                 @Override
                                 public void run() {
                                     ScoreboardManager manager = Bukkit.getScoreboardManager();
                                     Scoreboard board = manager.getNewScoreboard();
-                                    p.setScoreboard(board);
+                                    s.setScoreboard(board);
                                 }
                             }, 200L);
-                            plugin.getLoggerUtility().log(s, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.winner"), getName(), hasWinner().getName()), LoggerUtility.Level.INFO);
+                        }
+                        Player[] pla = plugin.getServer().getOnlinePlayers();
+                        for (final Player pl : pla) {
+                            plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.winner"), getName(), hasWinner().getName()), LoggerUtility.Level.INFO);
+
                         }
                         plugin.getLoggerUtility().log("passed gameticks: " + (CCArena.this.invincible - 20), LoggerUtility.Level.DEBUG);
 
@@ -744,6 +737,19 @@ public class CCArena {
                     }
                 }
             }, 10L);
+
+            if (hasWinner() != null) {
+                /**
+                 * Fire event PlayerGameWinEvent
+                 */
+                APIHandler.throwPlayerGameWinEvent(p, this, score, lobby);
+            } else {
+                /**
+                 * Fire event PlayerRoundWinEvent
+                 */
+                APIHandler.throwPlayerRoundWinEvent(p, this);
+            }
+
         }
     }
 
@@ -1275,17 +1281,18 @@ public class CCArena {
              * Fire Event PlayerLeaveEvent
              */
             APIHandler.throwPlayerGameWinEvent(lobby.get(0), this, score, lobby);
+
+            plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+
+                @Override
+                public void run() {
+                    ScoreboardManager manager = Bukkit.getScoreboardManager();
+                    Scoreboard board = manager.getNewScoreboard();
+                    lobby.get(0).setScoreboard(board);
+                }
+            }, 200L);
+            
             for (final Player s : pla) {
-
-                plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
-
-                    @Override
-                    public void run() {
-                        ScoreboardManager manager = Bukkit.getScoreboardManager();
-                        Scoreboard board = manager.getNewScoreboard();
-                        s.setScoreboard(board);
-                    }
-                }, 200L);
                 plugin.getLoggerUtility().log(s, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.winner"), new Object[]{this.name, ((Player) this.lobby.get(0)).getName()}), LoggerUtility.Level.INFO);
             }
             removePlayerFromGame(plugin, lobby.get(0));
@@ -1317,7 +1324,7 @@ public class CCArena {
         if (alive.contains(p)) {
             die(plugin, p, false);
         }
-        if(lobby.contains(p)) {
+        if (lobby.contains(p)) {
             this.lobby.remove(p);
         }
         for (PotionEffect ef : p.getActivePotionEffects()) {
@@ -1329,7 +1336,7 @@ public class CCArena {
             public void run() {
                 p.teleport(exitloc);
             }
-        }, 40L);
+        }, 50L);
 
         for (Player pl : this.lobby) {
             plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.exit.playerexit"), new Object[]{p.getName()}), LoggerUtility.Level.INFO);
@@ -1366,6 +1373,7 @@ public class CCArena {
             }
             this.lobby.clear();
             this.gameisrunning = false;
+            updateStatusSign();
         }
         roundrunning = false;
         this.invincible = invincible_standard;
