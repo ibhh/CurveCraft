@@ -18,6 +18,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -49,6 +50,7 @@ public class CCArena {
     private Location lobbyloc = null;
     private Location endloc = null;
     private Location exitloc = null;
+    private Location statussign = null;
 
     private boolean allowstartwithoutmaxplayers = true;
 
@@ -66,7 +68,7 @@ public class CCArena {
 
     private int invincible = 60;
     private int invincible_standard = 60;
-    
+
     private boolean commandwhitelist = false;
 
     private final HashMap<Player, Integer> score = new HashMap<>();
@@ -76,8 +78,10 @@ public class CCArena {
     private final ArrayList<Player> alive = new ArrayList<>();
 
     private final HashMap<Player, Integer> gap = new HashMap();
-    
+
     private CommandWhiteList commandwhitelistfile = null;
+
+    private boolean disabled = false;
 
     public CCArena(String m, Location l1, Location l2, Location lobbyloc, Location endloc, Location exitloc) {
         this.name = m;
@@ -107,8 +111,6 @@ public class CCArena {
         if (this.gap_length == 0) {
             this.gap_length = 3;
         }
-        
-
 
         this.timebeforegame = arena_save.getInt("arena.timebeforegame");
         if (this.timebeforegame == 0) {
@@ -147,6 +149,9 @@ public class CCArena {
         if (this.speed == 0.0D) {
             this.speed = 0.5D;
         }
+
+        this.disabled = arena_save.getBoolean("arena.disabled");
+
         String c1 = arena_save.getString("arena.corner1");
         String c2 = arena_save.getString("arena.corner2");
         String c3 = arena_save.getString("arena.lobbyloc");
@@ -159,20 +164,26 @@ public class CCArena {
         String[] cc4 = c4.split("/");
         String[] cc5 = c5.split("/");
 
+        String status = arena_save.getString("arena.statussign");
+        if (status != null && !status.contains("false")) {
+            String[] ss1 = status.split("/");
+            this.statussign = new Location(world, Integer.parseInt(ss1[0]), Integer.parseInt(ss1[1]), Integer.parseInt(ss1[2]));
+        }
+
         this.corner1 = new Location(world, Integer.parseInt(cc1[0]), Integer.parseInt(cc1[1]), Integer.parseInt(cc1[2]));
         this.corner2 = new Location(world, Integer.parseInt(cc2[0]), Integer.parseInt(cc2[1]), Integer.parseInt(cc2[2]));
         this.lobbyloc = new Location(world, Integer.parseInt(cc3[0]), Integer.parseInt(cc3[1]), Integer.parseInt(cc3[2]));
         this.endloc = new Location(world, Integer.parseInt(cc4[0]), Integer.parseInt(cc4[1]), Integer.parseInt(cc4[2]));
         this.exitloc = new Location(world, Integer.parseInt(cc5[0]), Integer.parseInt(cc5[1]), Integer.parseInt(cc5[2]));
-        
+
         this.commandwhitelist = arena_save.getBoolean("arena.commandwhitelist");
-        
+
         try {
             commandwhitelistfile = new CommandWhiteList(plugin, this);
         } catch (IOException ex) {
             Logger.getLogger(CCArena.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
             @Override
             public void run() {
@@ -221,14 +232,46 @@ public class CCArena {
     }
 
     public boolean commandWhiteListed(String s) {
-        if(commandwhitelist == false) {
+        if (commandwhitelist == false) {
             return true;
         } else {
             return commandwhitelistfile.allowed(s);
         }
     }
+
+    public void disable() throws DisableException {
+        if (disabled == true) {
+            throw new DisableException("Already disabled!");
+        }
+        if (gameisrunning) {
+            throw new DisableException("A game is running!");
+        }
+        if (lobby.size() > 0) {
+            throw new DisableException("Lobby not empty!");
+        }
+        disabled = true;
+        updateStatusSign();
+    }
     
-    
+    private void updateStatusSign() {
+        if (statussign != null) {
+            Block b = statussign.getBlock();
+            if (b != null && b.getState() instanceof Sign) {
+                Sign s = (Sign) b.getState();
+                s.setLine(3, disabled ? (ChatColor.RED + "DISABLED") : ((gameisrunning? ChatColor.GOLD + "RUNNING" : ChatColor.GREEN + "ENABLED") + " " + lobby.size() + "/" + maxplayers));
+                s.update();
+            }
+        }
+    }
+
+    public void enable() throws EnableExeption {
+        if (disabled == false) {
+            throw new EnableExeption("Already enabled!");
+        }
+        disabled = false;
+        updateStatusSign();
+    }
+
     public void setCorner1(Location corner1) {
         this.corner1 = corner1;
     }
@@ -279,6 +322,7 @@ public class CCArena {
 
     /**
      * HashMap with the score of each player inside this arena
+     *
      * @return Hashmap
      */
     public HashMap<Player, Integer> getScore() {
@@ -315,6 +359,7 @@ public class CCArena {
 
     /**
      * Get a ArrayList of players which are alive. Can be empty
+     *
      * @return ArrayList
      */
     public ArrayList<Player> getAlive() {
@@ -325,9 +370,9 @@ public class CCArena {
         return this.exitloc;
     }
 
-    
     /**
      * List contains all players which voted to start the game
+     *
      * @return ArrayList
      */
     public ArrayList<Player> getVoted() {
@@ -344,6 +389,7 @@ public class CCArena {
 
     /**
      * Maximum amount of players allowed in this arena
+     *
      * @return int
      */
     public int getMaxplayers() {
@@ -352,6 +398,7 @@ public class CCArena {
 
     /**
      * Required amount of players for a game in this arena
+     *
      * @return int
      */
     public int getMinplayers() {
@@ -360,16 +407,17 @@ public class CCArena {
 
     /**
      * Name of the arena
+     *
      * @return String
      */
     public String getName() {
         return this.name;
     }
 
-    
     /**
-     * Get the speed of the horses of this arena
-     * --- normalized vektor * speed = velocity
+     * Get the speed of the horses of this arena --- normalized vektor * speed =
+     * velocity
+     *
      * @return double
      */
     public double getSpeed() {
@@ -378,7 +426,8 @@ public class CCArena {
 
     /**
      * set the horse speed
-     * @param speed 
+     *
+     * @param speed
      */
     public void setSpeed(double speed) {
         this.speed = speed;
@@ -388,9 +437,9 @@ public class CCArena {
         return this.gameisrunning;
     }
 
-    
     /**
      * Gives a ArrayList of players which are in this lobby / game
+     *
      * @return ArrayList
      */
     public ArrayList<Player> getLobby() {
@@ -399,6 +448,7 @@ public class CCArena {
 
     /**
      * Contains colors of the planes for each player
+     *
      * @return HashMap
      */
     public HashMap<Player, DyeColor> getHorses() {
@@ -417,8 +467,29 @@ public class CCArena {
         return this.timebeforeround;
     }
 
+    public Location getStatussign() {
+        return statussign;
+    }
+
+    public void setStatussign(final Location statussign, final CurveCraft plugin) {
+        this.statussign = statussign;
+        saveToFolder(plugin);
+        if (statussign == null) {
+            return;
+        }
+        plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+
+            @Override
+            public void run() {
+                updateStatusSign();
+            }
+        }, 20L);
+
+    }
+
     /**
      * Saves the arena to config file
+     *
      * @param plugin a CurveCraft instance
      * @return true on success
      */
@@ -445,8 +516,10 @@ public class CCArena {
         arena_save.set("arena.lobbyloc", getLobbyloc().getBlockX() + "/" + getLobbyloc().getBlockY() + "/" + getLobbyloc().getBlockZ());
         arena_save.set("arena.endloc", getEndloc().getBlockX() + "/" + getEndloc().getBlockY() + "/" + getEndloc().getBlockZ());
         arena_save.set("arena.exitloc", getExitloc().getBlockX() + "/" + getExitloc().getBlockY() + "/" + getExitloc().getBlockZ());
+        arena_save.set("arena.statussign", statussign == null ? "false" : (getStatussign().getBlockX() + "/" + getStatussign().getBlockY() + "/" + getStatussign().getBlockZ()));
         arena_save.set("arena.lightning", lightning);
         arena_save.set("arena.commandwhitelist", isCommandwhitelist());
+        arena_save.set("arena.disabled", disabled);
         try {
             arena_save.options().copyDefaults(true);
             arena_save.save(configl);
@@ -460,6 +533,7 @@ public class CCArena {
 
     /**
      * Used to add new default values, to update the config to new versions :D
+     *
      * @param plugin a CurveCraft instance (data folder and error logging)
      * @return true on success
      */
@@ -486,8 +560,10 @@ public class CCArena {
         arena_save.addDefault("arena.lobbyloc", "-1/0/-1");
         arena_save.addDefault("arena.endloc", "-10/0/-10");
         arena_save.addDefault("arena.exitloc", "-15/0/-15");
+        arena_save.addDefault("arena.statussign", "false");
         arena_save.addDefault("arena.lightning", "true");
         arena_save.addDefault("arena.commandwhitelist", "false");
+        arena_save.addDefault("arena.disabled", "false");
         try {
             arena_save.options().copyDefaults(true);
             arena_save.save(configl);
@@ -501,9 +577,10 @@ public class CCArena {
 
     /**
      * Create folders for config
+     *
      * @param plugin a CurveCraft instance
      * @param configl config file
-     * @return  YamlConfiguration on success else null
+     * @return YamlConfiguration on success else null
      */
     private YamlConfiguration prepareSave(CurveCraft plugin, File configl) {
         File folder = new File(plugin.getDataFolder() + File.separator);
@@ -522,6 +599,7 @@ public class CCArena {
 
     /**
      * Manages voting
+     *
      * @param plugin a CurveCraft instance (used for language config)
      * @param player the player which votes
      * @throws NotInLobbyorGameException if the player is not in a lobby
@@ -547,9 +625,11 @@ public class CCArena {
 
     /**
      * Removes a player from a running round and teleports him to the endloc
+     *
      * @param plugin a CurveCraft insance
      * @param p the Player that should be removed.
-     * @param crash if the reason for removal is a crash this have to be true (if he is the last player in the round this is true)
+     * @param crash if the reason for removal is a crash this have to be true
+     * (if he is the last player in the round this is true)
      */
     private void die(final CurveCraft plugin, final Player p, final boolean crash) {
         plugin.getLoggerUtility().log("player " + p.getName() + " died!", LoggerUtility.Level.DEBUG);
@@ -645,14 +725,16 @@ public class CCArena {
                         plugin.getLoggerUtility().log("round initialized", LoggerUtility.Level.DEBUG);
                     }
                 }
-            }, 1L);
+            }, 10L);
         }
     }
-    
+
     /**
-     * Starts a game without voting. 
+     * Starts a game without voting.
+     *
      * @param plugin
-     * @throws StartGameException if the game is already running, or if there are not two players in the lobby.
+     * @throws StartGameException if the game is already running, or if there
+     * are not two players in the lobby.
      */
     public void forcestart(final CurveCraft plugin) throws StartGameException {
         if (gameisrunning) {
@@ -667,6 +749,7 @@ public class CCArena {
 
     /**
      * Checks if the game has already a winner
+     *
      * @return if yes, it returns the player object, else null
      */
     private Player hasWinner() {
@@ -678,7 +761,7 @@ public class CCArena {
                 i = (this.score.get(p));
                 pi = p;
             }
-            if ((i != -1) && ((this.score.get(p)) > i)) {
+            if ((i > -1) && ((this.score.get(p)) > i)) {
                 i2 = i;
                 i = (this.score.get(p));
                 pi = p;
@@ -690,9 +773,9 @@ public class CCArena {
         return pi;
     }
 
-    
     /**
      * Manages game mechanics (like horse behavior or crashing)
+     *
      * @param plugin a CurveCraft instance
      */
     private void gametick(final CurveCraft plugin) {
@@ -710,8 +793,8 @@ public class CCArena {
             p.setSprinting(false);
             if ((p.getVehicle() instanceof Horse)) {
                 Horse h = (Horse) p.getVehicle();
-                plugin.getLoggerUtility().log("p: " + p.getName() + " velocity3 set: " + h.getVelocity().toString(), LoggerUtility.Level.DEBUG);
-                plugin.getLoggerUtility().log("direction: " + p.getLocation().getDirection(), LoggerUtility.Level.DEBUG);
+                //plugin.getLoggerUtility().log("p: " + p.getName() + " velocity3 set: " + h.getVelocity().toString(), LoggerUtility.Level.DEBUG);
+                //plugin.getLoggerUtility().log("direction: " + p.getLocation().getDirection(), LoggerUtility.Level.DEBUG);
                 if (h.isTamed()) {
                     final Block b2 = h.getLocation().getBlock();
                     final Block b = h.getLocation().add(0.0D, 0.0D, 0.0D).getBlock();
@@ -757,8 +840,8 @@ public class CCArena {
                     v = v.setY(0).normalize();
                     h.setVelocity(v.multiply(this.speed));
                     p.getLocation().getDirection().setY(0);
-                    plugin.getLoggerUtility().log("p: " + p.getName() + " velocity4 set: " + h.getVelocity().toString(), LoggerUtility.Level.DEBUG);
-                    plugin.getLoggerUtility().log("direction: " + p.getLocation().getDirection(), LoggerUtility.Level.DEBUG);
+                    //plugin.getLoggerUtility().log("p: " + p.getName() + " velocity4 set: " + h.getVelocity().toString(), LoggerUtility.Level.DEBUG);
+                    //plugin.getLoggerUtility().log("direction: " + p.getLocation().getDirection(), LoggerUtility.Level.DEBUG);
 
                 }
             }
@@ -770,14 +853,17 @@ public class CCArena {
 
     /**
      * Does all what is needed to start the game
+     *
      * @param plugin a CurveCraft instance
-     * @param round if a new round start this must be true, if a new game starts false
+     * @param round if a new round start this must be true, if a new game starts
+     * false
      */
     private void initGame(final CurveCraft plugin, final boolean round) {
         if (!round) {
             plugin.getMetricsHandler().addPlayersPlayed(this.lobby.size());
             plugin.getMetricsHandler().addMatchesStarted();
             gameisrunning = true;
+            updateStatusSign();
         }
         for (Player player : this.lobby) {
             if (round) {
@@ -850,6 +936,7 @@ public class CCArena {
 
     /**
      * Calculates player positions and manages teleport
+     *
      * @param plugin a CurveCraft instance
      */
     private void startGame(CurveCraft plugin) {
@@ -1064,11 +1151,16 @@ public class CCArena {
 
     /**
      * Adds a player to a game that isn't running yet
+     *
      * @param plugin a CurveCraft instance
      * @param p Player that should be added
-     * @throws LobbyJoinException if the game is running, or the lobby has 16 players and is full
+     * @throws LobbyJoinException if the game is running, or the lobby has 16
+     * players and is full
      */
     public void addPlayerToLobby(CurveCraft plugin, Player p) throws LobbyJoinException {
+        if (this.disabled) {
+            throw new LobbyJoinException(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.disabled"));
+        }
         if (this.gameisrunning) {
             throw new LobbyJoinException(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.gamerunning"));
         }
@@ -1089,6 +1181,8 @@ public class CCArena {
         }
         this.lobby.add(p);
         this.score.put(p, 0);
+        updateStatusSign();
+
         p.setFoodLevel(20);
         p.setSprinting(false);
         p.setAllowFlight(false);
@@ -1121,9 +1215,10 @@ public class CCArena {
 
     /**
      * Used if a player leaves game/lobby
+     *
      * @param plugin a CurveCraft instance
      * @param p the player
-     * @throws NotInLobbyorGameException if the player is not in a lobby/game 
+     * @throws NotInLobbyorGameException if the player is not in a lobby/game
      */
     public void removePlayer(CurveCraft plugin, Player p)
             throws NotInLobbyorGameException {
@@ -1136,6 +1231,9 @@ public class CCArena {
             removePlayerFromLobby(plugin, p);
         }
         this.score.remove(p);
+
+        updateStatusSign();
+
         final ScoreboardManager manager = Bukkit.getScoreboardManager();
         for (Player pl : this.lobby) {
             Scoreboard board = manager.getNewScoreboard();
@@ -1179,7 +1277,9 @@ public class CCArena {
 
     private void removePlayerFromLobby(CurveCraft plugin, final Player p) {
         this.lobby.remove(p);
-        this.alive.remove(p);
+        if (voted.contains(p)) {
+            this.voted.remove(p);
+        }
         for (Player pl : this.lobby) {
             plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.exit.playerexit"), new Object[]{p.getName()}), LoggerUtility.Level.INFO);
         }
@@ -1194,17 +1294,12 @@ public class CCArena {
         plugin.getLoggerUtility().log(p, plugin.getConfigHandler().getLanguage_config().getString("lobby.exit.message"), LoggerUtility.Level.INFO);
     }
 
-    private void removePlayerFromGame(CurveCraft plugin, final Player p) {
-        Entity e = p.getVehicle();
-        if ((e != null) && ((e instanceof Horse))) {
-            Horse h = (Horse) e;
-            h.eject();
-            h.getInventory().setSaddle(null);
-            h.damage(1000.0D);
-        }
+    private void removePlayerFromGame(final CurveCraft plugin, final Player p) {
         this.lobby.remove(p);
         this.horses.remove(p);
-        this.alive.remove(p);
+        if (alive.contains(p)) {
+            die(plugin, p, false);
+        }
         for (PotionEffect ef : p.getActivePotionEffects()) {
             p.removePotionEffect(ef.getType());
         }
@@ -1223,7 +1318,9 @@ public class CCArena {
     }
 
     /**
-     * Clears arena for new game/round (not public because there will occure bugs with scorebord, effects and eventhandler)
+     * Clears arena for new game/round (not public because there will occure
+     * bugs with scorebord, effects and eventhandler)
+     *
      * @param plugin a CurveCraft instance
      * @param end true, if the game is over
      */
@@ -1257,21 +1354,21 @@ public class CCArena {
         Location topLeftCorner;
         Location bottomRightCorner;
         if ((this.corner1.getBlockX() > this.corner2.getBlockX()) && (this.corner1.getBlockZ() > this.corner2.getBlockZ())) {
-            plugin.getLoggerUtility().log("corner typ 1", LoggerUtility.Level.DEBUG);
+            //plugin.getLoggerUtility().log("corner typ 1", LoggerUtility.Level.DEBUG);
             bottomRightCorner = new Location(this.corner1.getWorld(), this.corner1.getBlockX(), this.corner1.getBlockY(), this.corner2.getBlockZ());
             topLeftCorner = new Location(this.corner1.getWorld(), this.corner2.getBlockX(), this.corner1.getBlockY(), this.corner1.getBlockZ());
         } else {
             if ((this.corner1.getBlockX() > this.corner2.getBlockX()) && (this.corner1.getBlockZ() < this.corner2.getBlockZ())) {
-                plugin.getLoggerUtility().log("corner typ 2", LoggerUtility.Level.DEBUG);
+                //plugin.getLoggerUtility().log("corner typ 2", LoggerUtility.Level.DEBUG);
                 bottomRightCorner = this.corner1;
                 topLeftCorner = this.corner2;
             } else {
                 if ((this.corner1.getBlockX() < this.corner2.getBlockX()) && (this.corner1.getBlockZ() > this.corner2.getBlockZ())) {
-                    plugin.getLoggerUtility().log("corner typ 3", LoggerUtility.Level.DEBUG);
+                    //plugin.getLoggerUtility().log("corner typ 3", LoggerUtility.Level.DEBUG);
                     bottomRightCorner = this.corner2;
                     topLeftCorner = this.corner1;
                 } else {
-                    plugin.getLoggerUtility().log("corner typ 4", LoggerUtility.Level.DEBUG);
+                    //plugin.getLoggerUtility().log("corner typ 4", LoggerUtility.Level.DEBUG);
                     bottomRightCorner = new Location(this.corner1.getWorld(), this.corner2.getBlockX(), this.corner1.getBlockY(), this.corner1.getBlockZ());
                     topLeftCorner = new Location(this.corner1.getWorld(), this.corner1.getBlockX(), this.corner1.getBlockY(), this.corner2.getBlockZ());
                 }
@@ -1281,8 +1378,8 @@ public class CCArena {
 
         int xrange = bottomRightCorner.getBlockX() - topLeftCorner.getBlockX();
         int zrange = topLeftCorner.getBlockZ() - bottomRightCorner.getBlockZ();
-        plugin.getLoggerUtility().log("xrange: " + xrange, LoggerUtility.Level.DEBUG);
-        plugin.getLoggerUtility().log("zrange: " + zrange, LoggerUtility.Level.DEBUG);
+        //plugin.getLoggerUtility().log("xrange: " + xrange, LoggerUtility.Level.DEBUG);
+        //plugin.getLoggerUtility().log("zrange: " + zrange, LoggerUtility.Level.DEBUG);
 
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < xrange; j++) {

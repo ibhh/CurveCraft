@@ -23,6 +23,7 @@ public class MetricsHandler {
         if (metrics == null) {
             metrics = new Metrics(plugin);
         }
+        initializeOthers();
         metrics.start();
     }
 

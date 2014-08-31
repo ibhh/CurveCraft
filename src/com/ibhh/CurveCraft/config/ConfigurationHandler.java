@@ -146,6 +146,7 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("lobby.join.full", "Die Lobby ist bereits voll.");
                 this.language_config.addDefault("lobby.join.noarena", "Keine Arena mit dem Namen: %s");
                 this.language_config.addDefault("lobby.join.already", "Du bist schon in einer Lobby/Game");
+                this.language_config.addDefault("lobby.join.disabled", "Arena ausgeschaltet!");
 
                 this.language_config.addDefault("lobby.exit.message", "Du hast die Lobby verlassen.");
                 this.language_config.addDefault("lobby.exit.playerexit", "%s hat die Lobby verlassen.");
@@ -327,6 +328,7 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("lobby.join.full", "The lobby is already full. Sorry.");
                 this.language_config.addDefault("lobby.join.noarena", "No arena with name \"%s\"");
                 this.language_config.addDefault("lobby.join.already", "You already in an arena/game");
+                this.language_config.addDefault("lobby.join.disabled", "Arena disabled!");
 
                 this.language_config.addDefault("lobby.exit.message", "You left the lobby.");
                 this.language_config.addDefault("lobby.exit.playerexit", "%s left the lobby.");
@@ -429,6 +431,16 @@ public class ConfigurationHandler {
                 this.language_config.addDefault("commands.changecorner2.permission", "CurveCraft.changecorner");
                 this.language_config.addDefault("commands.changecorner2.description", "Sets new corner 2");
                 this.language_config.addDefault("commands.changecorner2.usage", "/cc changecorner2 [ARENA]");
+                
+                this.language_config.addDefault("commands.enable.name", "enable");
+                this.language_config.addDefault("commands.enable.permission", "CurveCraft.changestatus");
+                this.language_config.addDefault("commands.enable.description", "Enables a arena");
+                this.language_config.addDefault("commands.enable.usage", "/cc enable [ARENA]");
+                
+                this.language_config.addDefault("commands.disable.name", "disable");
+                this.language_config.addDefault("commands.disable.permission", "CurveCraft.changestatus");
+                this.language_config.addDefault("commands.disable.description", "Disables a arena");
+                this.language_config.addDefault("commands.disable.usage", "/cc disable [ARENA]");
                 
                 this.language_config.addDefault("commands.resetarena.name", "resetarena");
                 this.language_config.addDefault("commands.resetarena.permission", "CurveCraft.resetarena");

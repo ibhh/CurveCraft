@@ -6,6 +6,8 @@ import com.ibhh.CurveCraft.Report.ReportToHost;
 import com.ibhh.CurveCraft.arena.AlreadyVotedException;
 import com.ibhh.CurveCraft.arena.ArenaHandler;
 import com.ibhh.CurveCraft.arena.CCArena;
+import com.ibhh.CurveCraft.arena.DisableException;
+import com.ibhh.CurveCraft.arena.EnableExeption;
 import com.ibhh.CurveCraft.arena.LobbyJoinException;
 import com.ibhh.CurveCraft.arena.NotInLobbyorGameException;
 import com.ibhh.CurveCraft.arena.StartGameException;
@@ -24,15 +26,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.Vector;
 
 public class CurveCraft extends JavaPlugin {
 
@@ -47,7 +44,7 @@ public class CurveCraft extends JavaPlugin {
     private IConomyHandler iConomyHandler;
     private MetricsHandler metricsHandler;
     private Help help;
-    private final String[] commands = {"help", "version", "denytracking", "allowtracking", "create", "setname", "setcorner1", "setcorner2", "join", "forcestart", "start", "setlobby", "setend", "lobby", "exit", "resetarena", "changecorner1", "changecorner2"};
+    private final String[] commands = {"help", "version", "denytracking", "allowtracking", "create", "setname", "setcorner1", "setcorner2", "join", "forcestart", "start", "setlobby", "setend", "lobby", "exit", "resetarena", "changecorner1", "changecorner2", "enable", "disable"};
 
     private final HashMap<String, ArenaCreationProzess> arena = new HashMap();
     private ArenaHandler arenaHandler;
@@ -228,15 +225,6 @@ public class CurveCraft extends JavaPlugin {
 
             if (command.getName().equalsIgnoreCase("cc")) {
                 if (args.length == 1) {
-                    if (args[0].equalsIgnoreCase("horse")) {
-                        Horse h = (Horse) getServer().getWorld("world").spawnEntity(player.getLocation(), EntityType.HORSE);
-                        h.setAdult();
-                        h.setOwner(player);
-                        h.getInventory().setSaddle(new ItemStack(Material.SADDLE));
-                        h.setPassenger(player);
-                        h.setVelocity(new Vector(0.0D, 0.0D, 0.3D));
-                        return true;
-                    }
                     if (args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.cancel.name"))) {
                         if (getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.cancel.permission"))) {
                             if (!this.arena.containsKey(player.getName())) {
@@ -425,7 +413,11 @@ public class CurveCraft extends JavaPlugin {
                     return true;
                 }
                 if (args.length == 2) {
-
+                    if (args[0].equalsIgnoreCase("checkarena")) {
+                        boolean ina = getArenaHandler().getArenaByName(args[1]).isInArena(player.getLocation());
+                        getLoggerUtility().log(player, "in Arena " + args[1] + ": " + ina, LoggerUtility.Level.INFO);
+                        return true;
+                    }
                     if (args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.changecorner1.name"))) {
                         if (getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.changecorner1.permission"))) {
                             CCArena a = arenaHandler.getArenaByName(args[1]);
@@ -447,6 +439,42 @@ public class CurveCraft extends JavaPlugin {
                                 a.setCorner1(player.getLocation().add(0.0D, -1.0D, 0.0D));
                                 a.saveToFolder(this);
                                 getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("arena.change"), LoggerUtility.Level.INFO);
+                            } else {
+                                getLoggerUtility().log(player, String.format(getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
+                            }
+                        }
+                        return true;
+                    }
+                    
+                    if (args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.enable.name"))) {
+                        if (getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.enable.permission"))) {
+                            CCArena a = arenaHandler.getArenaByName(args[1]);
+                            if (a != null) {
+                                try {
+                                    a.enable();
+                                    a.saveToFolder(this);
+                                    getLoggerUtility().log(player, "Status changed to enabled!", LoggerUtility.Level.INFO);
+                                } catch (EnableExeption ex) {
+                                    getLoggerUtility().log(player, ex.getMessage(), LoggerUtility.Level.ERROR);
+                                }
+                            } else {
+                                getLoggerUtility().log(player, String.format(getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
+                            }
+                        }
+                        return true;
+                    }
+                    
+                    if (args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.disable.name"))) {
+                        if (getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.disable.permission"))) {
+                            CCArena a = arenaHandler.getArenaByName(args[1]);
+                            if (a != null) {
+                                try {
+                                    a.disable();
+                                    a.saveToFolder(this);
+                                    getLoggerUtility().log(player, "Status changed to disabled!", LoggerUtility.Level.INFO);
+                                } catch (DisableException ex) {
+                                    getLoggerUtility().log(player, ex.getMessage(), LoggerUtility.Level.ERROR);
+                                }
                             } else {
                                 getLoggerUtility().log(player, String.format(getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
                             }
