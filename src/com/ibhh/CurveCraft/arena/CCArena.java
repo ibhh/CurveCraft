@@ -622,7 +622,7 @@ public class CCArena {
             initGame(plugin, false);
         }
     }
-
+    
     /**
      * Removes a player from a running round and teleports him to the endloc
      *
@@ -632,6 +632,19 @@ public class CCArena {
      * (if he is the last player in the round this is true)
      */
     private void die(final CurveCraft plugin, final Player p, final boolean crash) {
+        die(plugin, p, crash, false);
+    }
+
+    /**
+     * Removes a player from a running round and teleports him to the endloc
+     *
+     * @param plugin a CurveCraft insance
+     * @param p the Player that should be removed.
+     * @param crash if the reason for removal is a crash this have to be true
+     * (if he is the last player in the round this is true)
+     * @param pexit if the player is leaving the game
+     */
+    private void die(final CurveCraft plugin, final Player p, final boolean crash, final boolean pexit) {
         plugin.getLoggerUtility().log("player " + p.getName() + " died!", LoggerUtility.Level.DEBUG);
 
         Entity e = p.getVehicle();
@@ -671,6 +684,10 @@ public class CCArena {
             }
             pl.setScoreboard(board);
         }
+        
+        if(pexit) {
+            lobby.remove(p);
+        }
 
         /**
          * Fire Event PlayerCrashedEvent
@@ -682,6 +699,7 @@ public class CCArena {
             }
             die(plugin, (Player) this.alive.get(0), false);
             roundrunning = false;
+            pointsneeded = (CCArena.this.lobby.size() - 1) * 10;
             if (hasWinner() != null) {
                 /**
                  * Fire event PlayerGameWinEvent
@@ -1295,10 +1313,12 @@ public class CCArena {
     }
 
     private void removePlayerFromGame(final CurveCraft plugin, final Player p) {
-        this.lobby.remove(p);
         this.horses.remove(p);
         if (alive.contains(p)) {
             die(plugin, p, false);
+        }
+        if(lobby.contains(p)) {
+            this.lobby.remove(p);
         }
         for (PotionEffect ef : p.getActivePotionEffects()) {
             p.removePotionEffect(ef.getType());

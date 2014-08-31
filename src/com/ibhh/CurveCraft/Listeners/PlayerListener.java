@@ -75,7 +75,7 @@ public class PlayerListener
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onSignPlace(SignChangeEvent e) {
-        if (e.getLine(0).toLowerCase().contains("curvecraft") && e.getLine(1).toLowerCase().contains("status")) {
+        if (e.getLine(0).toLowerCase().contains("curvecraft") && e.getLine(1).toLowerCase().contains("join")) {
             CCArena a = plugin.getArenaHandler().getArenaByName(e.getLine(2));
             if (a == null) {
                 this.plugin.getLoggerUtility().log(e.getPlayer(), String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), e.getLine(2)), LoggerUtility.Level.ERROR);
@@ -155,7 +155,7 @@ public class PlayerListener
         } else {
             if (e.getBlock().getState() instanceof Sign) {
                 Sign s = (Sign) e.getBlock().getState();
-                if (s.getLine(0).toLowerCase().contains("curvecraft") && s.getLine(1).toLowerCase().contains("status")) {
+                if (s.getLine(0).toLowerCase().contains("curvecraft") && s.getLine(1).toLowerCase().contains("join")) {
                     CCArena ar = plugin.getArenaHandler().getArenaByName(s.getLine(2));
                     if (ar != null) {
                         if (plugin.getPermissions().checkpermissions(e.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("commands.create.permission"))) {
