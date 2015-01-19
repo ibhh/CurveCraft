@@ -1,13 +1,19 @@
 package com.ibhh.CurveCraft.arena;
 
 /**
- *
  * @author ibhh
  */
-public class LobbyJoinException extends Exception{
+public class LobbyJoinException extends Exception
+{
 
-    public LobbyJoinException(String s) {
-        super(s);
-    }
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2758370412516180446L;
+
+	public LobbyJoinException(String s)
+	{
+		super(s);
+	}
 
 }

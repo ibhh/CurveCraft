@@ -1,13 +1,19 @@
 package com.ibhh.CurveCraft.arena;
 
 /**
- *
  * @author ibhh
  */
-public class NotInLobbyorGameException extends Exception{
+public class NotInLobbyorGameException extends Exception
+{
 
-    public NotInLobbyorGameException(String s) {
-        super(s);
-    }
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3232514251079006342L;
+
+	public NotInLobbyorGameException(String s)
+	{
+		super(s);
+	}
 
 }

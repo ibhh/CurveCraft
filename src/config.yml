@@ -14,3 +14,4 @@ TextColor: 6
 updateIntervall: 30
 everyArenaOwnJoinPermission: false
 globalcommandwhitelist: false
+extendedreset: true

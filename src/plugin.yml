@@ -1,8 +1,9 @@
 name: CurveCraft
-version: 1.4
+version: 1.5
 main: com.ibhh.CurveCraft.CurveCraft
 author: ibhh
 website: http://ibhh.de
+softdepend: [Multiverse-Core]
 commands:
   cc:
     description: Help of CurveCraft

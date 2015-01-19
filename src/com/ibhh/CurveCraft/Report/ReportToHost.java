@@ -10,29 +10,38 @@ import java.net.URLEncoder;
 import com.ibhh.CurveCraft.CurveCraft;
 import com.ibhh.CurveCraft.logger.LoggerUtility;
 
-public class ReportToHost {
+public class ReportToHost
+{
 
 	private CurveCraft plugin;
 	private FileSend filesend;
 
-	public ReportToHost(CurveCraft pl) {
+	public ReportToHost(CurveCraft pl)
+	{
 		this.plugin = pl;
 		new StackTraceUtil();
 		this.filesend = new FileSend(this.plugin);
 	}
 
-	public String report(int line, String other, String message, String classfile, Exception stack) {
-		if (this.plugin.getConfig().getBoolean("senderrorreport")) {
-			if (other == null) {
+	public String report(int line, String other, String message, String classfile, Exception stack)
+	{
+		if(this.plugin.getConfig().getBoolean("senderrorreport"))
+		{
+			if(other == null)
+			{
 				other = "none";
 			}
-			if (message == null) {
+			if(message == null)
+			{
 				message = "none";
 			}
 			String stacktrace;
-			if (stack != null) {
+			if(stack != null)
+			{
 				stacktrace = StackTraceUtil.getStackTrace(stack);
-			} else {
+			}
+			else
+			{
 				stacktrace = "none";
 			}
 
@@ -41,15 +50,20 @@ public class ReportToHost {
 		return "internet not enabled in the config.yml";
 	}
 
-	public String report(int line, String other, String message, String classfile, String stacktrace) {
-		if (this.plugin.getConfig().getBoolean("senderrorreport")) {
-			if (other == null) {
+	public String report(int line, String other, String message, String classfile, String stacktrace)
+	{
+		if(this.plugin.getConfig().getBoolean("senderrorreport"))
+		{
+			if(other == null)
+			{
 				other = "none";
 			}
-			if (message == null) {
+			if(message == null)
+			{
 				message = "none";
 			}
-			if (stacktrace == null) {
+			if(stacktrace == null)
+			{
 				stacktrace = "none";
 			}
 			return send(line + "", message, classfile, stacktrace, other);
@@ -57,19 +71,25 @@ public class ReportToHost {
 		return "internet not enabled in the config.yml";
 	}
 
-	public String readAll(String url) {
+	public String readAll(String url)
+	{
 		String zeile;
-		try {
+		try
+		{
 			URL myConnection = new URL(url);
 			URLConnection connectMe = myConnection.openConnection();
 			InputStreamReader lineReader = new InputStreamReader(connectMe.getInputStream());
 			BufferedReader br = new BufferedReader(new BufferedReader(lineReader));
 			zeile = br.readLine();
-		} catch (IOException ioe) {
+		}
+		catch(IOException ioe)
+		{
 			ioe.printStackTrace();
 			this.plugin.getLoggerUtility().log("Exception: IOException! Exception on reading message!", LoggerUtility.Level.ERROR);
 			return "Exception on reading message!";
-		} catch (Exception e) {
+		}
+		catch(Exception e)
+		{
 			e.printStackTrace();
 			this.plugin.getLoggerUtility().log("Exception: Exception! Exception on reading message!", LoggerUtility.Level.ERROR);
 			return "Exception on reading message!";
@@ -77,10 +97,12 @@ public class ReportToHost {
 		return zeile;
 	}
 
-	public String send(String line, String message, String classfile, String stacktrace, String other) {
+	public String send(String line, String message, String classfile, String stacktrace, String other)
+	{
 		String ret = "Error";
 		String url1 = "http://report.ibhh.de/index.php?programm=" + this.plugin.getName();
-		try {
+		try
+		{
 			URL url = new URL(url1);
 			// Construct data
 			String data = URLEncoder.encode("version", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(this.plugin.getDescription().getVersion()), "UTF-8");
@@ -103,9 +125,12 @@ public class ReportToHost {
 			ret = rd.readLine();
 			wr.close();
 			rd.close();
-		} catch (Exception e) {
 		}
-		try {
+		catch(Exception e)
+		{
+		}
+		try
+		{
 			String temp = "[" + this.plugin.getName() + "] Sending issue report to ibhh.de!";
 			System.out.print(temp);
 			this.plugin.getLoggerUtility().log(temp);
@@ -127,7 +152,8 @@ public class ReportToHost {
 			temp = "[" + this.plugin.getName() + "] Message: " + message;
 			System.out.print(temp);
 			this.plugin.getLoggerUtility().log(temp);
-			if (this.plugin.getConfig().getBoolean("debug")) {
+			if(this.plugin.getConfig().getBoolean("debug"))
+			{
 				temp = "[" + this.plugin.getName() + "] Stacktrace: " + stacktrace;
 				System.out.print(temp);
 				this.plugin.getLoggerUtility().log(temp);
@@ -144,34 +170,47 @@ public class ReportToHost {
 			temp = "[" + this.plugin.getName() + "] -------------------------";
 			System.out.print(temp);
 			this.plugin.getLoggerUtility().log(temp);
-		} catch (Exception ex) {
+		}
+		catch(Exception ex)
+		{
 			String temp = "[" + this.plugin.getName() + "] Couldnt send error report to ibhh.de!";
 			System.out.print(temp);
 			this.plugin.getLoggerUtility().log(temp);
-			if (this.plugin.getConfig().getBoolean("debug")) {
+			if(this.plugin.getConfig().getBoolean("debug"))
+			{
 				ex.printStackTrace();
 			}
 		}
-		if (this.plugin.getConfig().getBoolean("senddebugfile")) {
+		if(this.plugin.getConfig().getBoolean("senddebugfile"))
+		{
 			this.plugin.getLoggerUtility().log("config == true", LoggerUtility.Level.DEBUG);
-			if (ret != null) {
+			if(ret != null)
+			{
 				this.plugin.getLoggerUtility().log("ret != null", LoggerUtility.Level.DEBUG);
-				try {
+				try
+				{
 					String[] id_text = ret.split(":");
 					String id = id_text[1];
 					this.plugin.getLoggerUtility().log("ID: " + id, LoggerUtility.Level.DEBUG);
-					try {
-						if (id != null) {
+					try
+					{
+						if(id != null)
+						{
 							this.filesend.sendDebugFile(id);
 							this.plugin.getLoggerUtility().log("debugfile successfully sent, thanks!", LoggerUtility.Level.INFO);
 						}
-					} catch (Exception e1) {
+					}
+					catch(Exception e1)
+					{
 						this.plugin.getLoggerUtility().log("Could not send debugfile!", LoggerUtility.Level.ERROR);
-						if (this.plugin.getConfigHandler().getConfig().getBoolean("debug")) {
+						if(this.plugin.getConfigHandler().getConfig().getBoolean("debug"))
+						{
 							e1.printStackTrace();
 						}
 					}
-				} catch (Exception e) {
+				}
+				catch(Exception e)
+				{
 				}
 			}
 		}
