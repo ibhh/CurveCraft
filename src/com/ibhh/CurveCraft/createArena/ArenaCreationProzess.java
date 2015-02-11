@@ -86,32 +86,32 @@ public class ArenaCreationProzess
 	{
 		if(this.name.equals(""))
 		{
-			throw new NotFinishedYetException(this.plugin.getConfigHandler().getLanguage_config().getString("create.notfinished.noname"));
+			throw new NotFinishedYetException(plugin.getConfigHandler().getLanguageString("system", "create.notfinished.noname"));
 		}
 
 		if((this.corner1 == null) || (this.corner2 == null))
 		{
-			throw new NotFinishedYetException(this.plugin.getConfigHandler().getLanguage_config().getString("create.notfinished.nocorner"));
+			throw new NotFinishedYetException(plugin.getConfigHandler().getLanguageString("system", "create.notfinished.nocorner"));
 		}
 
 		if(this.lobbyloc == null)
 		{
-			throw new NotFinishedYetException(this.plugin.getConfigHandler().getLanguage_config().getString("create.notfinished.lobbyloc"));
+			throw new NotFinishedYetException(plugin.getConfigHandler().getLanguageString("system", "create.notfinished.lobbyloc"));
 		}
 
 		if(this.endloc == null)
 		{
-			throw new NotFinishedYetException(this.plugin.getConfigHandler().getLanguage_config().getString("create.notfinished.endloc"));
+			throw new NotFinishedYetException(plugin.getConfigHandler().getLanguageString("system", "create.notfinished.endloc"));
 		}
 
 		if(this.exitloc == null)
 		{
-			throw new NotFinishedYetException(this.plugin.getConfigHandler().getLanguage_config().getString("create.notfinished.exitloc"));
+			throw new NotFinishedYetException(plugin.getConfigHandler().getLanguageString("system", "create.notfinished.exitloc"));
 		}
 
 		if(this.corner1.getBlockY() != this.corner2.getBlockY())
 		{
-			throw new NotFinishedYetException(this.plugin.getConfigHandler().getLanguage_config().getString("create.notfinished.wrongY"));
+			throw new NotFinishedYetException(plugin.getConfigHandler().getLanguageString("system", "create.notfinished.wrongY"));
 		}
 		CCArena arena = new CCArena(this.name, this.corner1, this.corner2, this.lobbyloc, this.endloc, this.exitloc);
 		File f = arena.saveToFolder(this.plugin);

@@ -1,4 +1,4 @@
-language: en
+language: en_CA
 autodownload: true
 installondownload: false
 updateCheck: true

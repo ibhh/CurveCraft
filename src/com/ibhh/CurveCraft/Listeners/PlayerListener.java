@@ -64,9 +64,9 @@ public class PlayerListener implements Listener
 					if((!PlayerListener.this.plugin.getPrivacy().getConfig().containsKey(player.getName())) && (PlayerListener.this.plugin.getConfigHandler().getConfig().getBoolean("users_can_choose_privacy")))
 					{
 						// PlayerListener.this.plugin.getLoggerUtility().log("no privacy set!", LoggerUtility.Level.DEBUG);
-						PlayerListener.this.plugin.getLoggerUtility().log(player.getPlayer(), PlayerListener.this.plugin.getConfigHandler().getLanguage_config().getString("privacy.notification.1"), LoggerUtility.Level.WARNING);
-						PlayerListener.this.plugin.getLoggerUtility().log(player.getPlayer(), PlayerListener.this.plugin.getConfigHandler().getLanguage_config().getString("privacy.notification.2"), LoggerUtility.Level.WARNING);
-						PlayerListener.this.plugin.getLoggerUtility().log(player.getPlayer(), PlayerListener.this.plugin.getConfigHandler().getLanguage_config().getString("privacy.notification.3"), LoggerUtility.Level.WARNING);
+						PlayerListener.this.plugin.getLoggerUtility().log(player.getPlayer(), PlayerListener.this.plugin.getConfigHandler().getLanguageString(player, "privacy.notification.1"), LoggerUtility.Level.WARNING);
+						PlayerListener.this.plugin.getLoggerUtility().log(player.getPlayer(), PlayerListener.this.plugin.getConfigHandler().getLanguageString(player, "privacy.notification.2"), LoggerUtility.Level.WARNING);
+						PlayerListener.this.plugin.getLoggerUtility().log(player.getPlayer(), PlayerListener.this.plugin.getConfigHandler().getLanguageString(player, "privacy.notification.3"), LoggerUtility.Level.WARNING);
 					}
 				}
 			}, 20L);
@@ -88,7 +88,7 @@ public class PlayerListener implements Listener
 			CCArena a = plugin.getArenaHandler().getArenaByName(e.getLine(2));
 			if(a == null)
 			{
-				this.plugin.getLoggerUtility().log(e.getPlayer(), String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), e.getLine(2)), LoggerUtility.Level.ERROR);
+				this.plugin.getLoggerUtility().log(e.getPlayer(), String.format(plugin.getConfigHandler().getLanguageString(e.getPlayer(), "lobby.join.noarena"), e.getLine(2)), LoggerUtility.Level.ERROR);
 				e.getBlock().breakNaturally();
 				e.setCancelled(true);
 			}
@@ -100,7 +100,7 @@ public class PlayerListener implements Listener
 				}
 				else
 				{
-					if(plugin.getPermissions().checkpermissions(e.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("commands.create.permission")))
+					if(plugin.getPermissions().checkpermissions(e.getPlayer(), plugin.getConfigHandler().getLanguageString(e.getPlayer(), "commands.create.permission")))
 					{
 						a.setStatussign(e.getBlock().getLocation(), plugin);
 						this.plugin.getLoggerUtility().log(e.getPlayer(), "Created!", LoggerUtility.Level.INFO);
@@ -162,14 +162,14 @@ public class PlayerListener implements Listener
 			if((!plugin.getConfigHandler().getConfig().getBoolean("globalcommandwhitelist") && a.isCommandwhitelist() && !a.commandWhiteListed(event.getMessage().split(" ")[0].replace("/", ""))) || (plugin.getConfigHandler().getConfig().getBoolean("globalcommandwhitelist") && a.isCommandwhitelist() && !plugin.getArenaHandler().isCommandGlobalWhitelisted(event.getMessage().split(" ")[0].replace("/", ""))))
 			{
 				event.setCancelled(true);
-				this.plugin.getLoggerUtility().log(event.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("commands.notallowed"), LoggerUtility.Level.ERROR);
+				this.plugin.getLoggerUtility().log(event.getPlayer(), plugin.getConfigHandler().getLanguageString(event.getPlayer(), "commands.notallowed"), LoggerUtility.Level.ERROR);
 			}
 		}
 
 		if(((event.getMessage().toLowerCase().contains("tp")) || (event.getMessage().toLowerCase().contains("tt")) || (event.getMessage().toLowerCase().contains("home"))) && (this.plugin.getArenaHandler().getArenaOfPlayer(event.getPlayer()) != null))
 		{
 			event.setCancelled(true);
-			this.plugin.getLoggerUtility().log(event.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("commands.notallowed"), LoggerUtility.Level.ERROR);
+			this.plugin.getLoggerUtility().log(event.getPlayer(), plugin.getConfigHandler().getLanguageString(event.getPlayer(), "commands.notallowed"), LoggerUtility.Level.ERROR);
 		}
 
 		this.plugin.getLoggerUtility().log("PlayerCommandPreprocessEvent handled in " + (System.nanoTime() - time) / 1000000L + " ms", LoggerUtility.Level.DEBUG);
@@ -194,7 +194,7 @@ public class PlayerListener implements Listener
 					CCArena ar = plugin.getArenaHandler().getArenaByName(s.getLine(2));
 					if(ar != null)
 					{
-						if(plugin.getPermissions().checkpermissions(e.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("commands.create.permission")))
+						if(plugin.getPermissions().checkpermissions(e.getPlayer(), plugin.getConfigHandler().getLanguageString(e.getPlayer(), "commands.create.permission")))
 						{
 							ar.setStatussign(null, plugin);
 							this.plugin.getLoggerUtility().log(e.getPlayer(), "Destroyed!", LoggerUtility.Level.INFO);
@@ -231,18 +231,18 @@ public class PlayerListener implements Listener
 				if(s.getLines().length >= 3 && s.getLine(0).toLowerCase().contains("curvecraft") && s.getLine(1).toLowerCase().contains("join"))
 				{
 					plugin.getLoggerUtility().log("Has ccjoin", LoggerUtility.Level.DEBUG);
-					if(plugin.getPermissions().checkpermissions(e.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("commands.join.permission")))
+					if(plugin.getPermissions().checkpermissions(e.getPlayer(), plugin.getConfigHandler().getLanguageString(e.getPlayer(), "commands.join.permission")))
 					{
 						if(plugin.getArenaHandler().getArenaOfPlayer(e.getPlayer()) != null)
 						{
-							plugin.getLoggerUtility().log(e.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("lobby.join.already"), LoggerUtility.Level.ERROR);
+							plugin.getLoggerUtility().log(e.getPlayer(), plugin.getConfigHandler().getLanguageString(e.getPlayer(), "lobby.join.already"), LoggerUtility.Level.ERROR);
 						}
 						else
 						{
 							CCArena arena = plugin.getArenaHandler().getArenaByName(s.getLine(2));
 							if(arena == null)
 							{
-								plugin.getLoggerUtility().log(e.getPlayer(), String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), s.getLine(2)), LoggerUtility.Level.ERROR);
+								plugin.getLoggerUtility().log(e.getPlayer(), String.format(plugin.getConfigHandler().getLanguageString(e.getPlayer(), "lobby.join.noarena"), s.getLine(2)), LoggerUtility.Level.ERROR);
 							}
 							else if((plugin.getConfigHandler().getConfig().getBoolean("everyArenaOwnJoinPermission") && (plugin.getPermissions().checkpermissions(e.getPlayer(), new StringBuilder().append("CurveFerver.join.").append(s.getLine(2)).toString()))) || (!plugin.getConfigHandler().getConfig().getBoolean("everyArenaOwnJoinPermission")))
 							{
@@ -261,14 +261,14 @@ public class PlayerListener implements Listener
 				if(s.getLines().length >= 2 && s.getLine(0).toLowerCase().contains("curvecraft") && (s.getLine(1).toLowerCase().contains("start") || s.getLine(1).toLowerCase().contains("vote")))
 				{
 					plugin.getLoggerUtility().log("Has ccstart", LoggerUtility.Level.DEBUG);
-					if(plugin.getPermissions().checkpermissions(e.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("commands.start.permission")))
+					if(plugin.getPermissions().checkpermissions(e.getPlayer(), plugin.getConfigHandler().getLanguageString(e.getPlayer(), "commands.start.permission")))
 					{
 						try
 						{
 							CCArena are = plugin.getArenaHandler().getArenaOfPlayer(e.getPlayer());
 							if(are == null)
 							{
-								plugin.getLoggerUtility().log(e.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("lobby.exit.noarena"), LoggerUtility.Level.ERROR);
+								plugin.getLoggerUtility().log(e.getPlayer(), plugin.getConfigHandler().getLanguageString(e.getPlayer(), "lobby.exit.noarena"), LoggerUtility.Level.ERROR);
 							}
 							else
 							{
@@ -284,14 +284,14 @@ public class PlayerListener implements Listener
 				if(s.getLines().length >= 2 && s.getLine(0).toLowerCase().contains("curvecraft") && s.getLine(1).toLowerCase().contains("leave"))
 				{
 					plugin.getLoggerUtility().log("Has ccleave", LoggerUtility.Level.DEBUG);
-					if(plugin.getPermissions().checkpermissions(e.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("commands.exit.permission")))
+					if(plugin.getPermissions().checkpermissions(e.getPlayer(), plugin.getConfigHandler().getLanguageString(e.getPlayer(), "commands.exit.permission")))
 					{
 						try
 						{
 							CCArena aren = plugin.getArenaHandler().getArenaOfPlayer(e.getPlayer());
 							if(aren == null)
 							{
-								plugin.getLoggerUtility().log(e.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("lobby.exit.noarena"), LoggerUtility.Level.ERROR);
+								plugin.getLoggerUtility().log(e.getPlayer(), plugin.getConfigHandler().getLanguageString(e.getPlayer(), "lobby.exit.noarena"), LoggerUtility.Level.ERROR);
 							}
 							else
 							{
@@ -307,16 +307,16 @@ public class PlayerListener implements Listener
 				if(s.getLines().length >= 2 && s.getLine(0).toLowerCase().contains("curvecraft") && s.getLine(1).toLowerCase().contains("viewlobby"))
 				{
 					plugin.getLoggerUtility().log("Has cclobby", LoggerUtility.Level.DEBUG);
-					if(plugin.getPermissions().checkpermissions(e.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("commands.lobby.permission")))
+					if(plugin.getPermissions().checkpermissions(e.getPlayer(), plugin.getConfigHandler().getLanguageString(e.getPlayer(), "commands.lobby.permission")))
 					{
 						CCArena ar = plugin.getArenaHandler().getArenaByName(s.getLine(2));
 						if(ar == null)
 						{
-							plugin.getLoggerUtility().log(e.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), LoggerUtility.Level.ERROR);
+							plugin.getLoggerUtility().log(e.getPlayer(), plugin.getConfigHandler().getLanguageString(e.getPlayer(), "lobby.join.noarena"), LoggerUtility.Level.ERROR);
 						}
 						else
 						{
-							plugin.getLoggerUtility().log(e.getPlayer(), plugin.getConfigHandler().getLanguage_config().getString("lobby.players"), LoggerUtility.Level.INFO);
+							plugin.getLoggerUtility().log(e.getPlayer(), plugin.getConfigHandler().getLanguageString(e.getPlayer(), "lobby.players"), LoggerUtility.Level.INFO);
 							StringBuilder st = new StringBuilder();
 							for(int i = 0; i < ar.getLobby().size(); i++)
 							{

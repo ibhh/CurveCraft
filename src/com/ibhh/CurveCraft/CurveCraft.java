@@ -1,5 +1,19 @@
 package com.ibhh.CurveCraft;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import com.ibhh.CurveCraft.Listeners.PlayerListener;
 import com.ibhh.CurveCraft.Permissions.PermissionsUtility;
 import com.ibhh.CurveCraft.Report.ReportToHost;
@@ -20,21 +34,6 @@ import com.ibhh.CurveCraft.metrics.MetricsHandler;
 import com.ibhh.CurveCraft.update.Update;
 import com.ibhh.CurveCraft.update.Utilities;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-
 public class CurveCraft extends JavaPlugin
 {
 
@@ -49,7 +48,7 @@ public class CurveCraft extends JavaPlugin
 	private IConomyHandler iConomyHandler;
 	private MetricsHandler metricsHandler;
 	private Help help;
-	private final String[] commands = {"help", "version", "denytracking", "allowtracking", "list", "create", "setname", "setcorner1", "setcorner2", "join", "forcestart", "start", "setlobby", "setend", "lobby", "exit", "resetarena", "deletearena", "changecorner1", "changecorner2", "enable", "disable"};
+	private final String[] commands = {"help", "changelanguage", "languagelist", "version", "denytracking", "allowtracking", "list", "create", "setname", "setcorner1", "setcorner2", "join", "forcestart", "start", "setlobby", "setend", "lobby", "exit", "resetarena", "deletearena", "changecorner1", "changecorner2", "enable", "disable"};
 
 	private final HashMap<String, ArenaCreationProzess> arena = new HashMap<String, ArenaCreationProzess>();
 	private ArenaHandler arenaHandler;
@@ -202,7 +201,7 @@ public class CurveCraft extends JavaPlugin
 	public void onEnable()
 	{
 		long time = System.nanoTime();
-		getConfigHandler().onStart();
+		getConfigHandler();
 		getLoggerUtility();
 		getLoggerUtility().log("creating config!", LoggerUtility.Level.DEBUG);
 		getLoggerUtility().log("init logger!", LoggerUtility.Level.DEBUG);
@@ -275,9 +274,15 @@ public class CurveCraft extends JavaPlugin
 			{
 				if(args.length == 1)
 				{
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.list.name")))
+					/* Language List Command languagelist */
+
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.languagelist.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.languagelist.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.list.permission")))
+						return executeCommandLanguageList(player, args);
+					}
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.list.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.list.name")))
+					{
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.list.permission")))
 						{
 							getLoggerUtility().log(player, "Lobbys: ", LoggerUtility.Level.INFO);
 							ArrayList<CCArena> ar = arenaHandler.getArena();
@@ -288,29 +293,29 @@ public class CurveCraft extends JavaPlugin
 						}
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.cancel.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.cancel.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.cancel.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.cancel.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.cancel.permission")))
 						{
 							if(!this.arena.containsKey(player.getName()))
 							{
-								getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.noarena"), LoggerUtility.Level.INFO);
+								getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.noarena"), LoggerUtility.Level.INFO);
 								return true;
 							}
-							getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.cancel.message"), LoggerUtility.Level.INFO);
+							getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.cancel.message"), LoggerUtility.Level.INFO);
 						}
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.exit.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.exit.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.exit.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.exit.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.exit.permission")))
 						{
 							try
 							{
 								CCArena aren = getArenaHandler().getArenaOfPlayer(player);
 								if(aren == null)
 								{
-									getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("lobby.exit.noarena"), LoggerUtility.Level.ERROR);
+									getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "lobby.exit.noarena"), LoggerUtility.Level.ERROR);
 								}
 								else
 								{
@@ -324,16 +329,16 @@ public class CurveCraft extends JavaPlugin
 						}
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.start.name")) || args[0].equalsIgnoreCase("vote"))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.start.name")) || args[0].equalsIgnoreCase("vote") || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.start.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.start.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.start.permission")))
 						{
 							try
 							{
 								CCArena are = getArenaHandler().getArenaOfPlayer(player);
 								if(are == null)
 								{
-									getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("lobby.exit.noarena"), LoggerUtility.Level.ERROR);
+									getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "lobby.exit.noarena"), LoggerUtility.Level.ERROR);
 								}
 								else
 								{
@@ -347,18 +352,18 @@ public class CurveCraft extends JavaPlugin
 						}
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.lobby.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.lobby.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.lobby.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.lobby.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.lobby.permission")))
 						{
 							CCArena ar = getArenaHandler().getArenaOfPlayer(player);
 							if(ar == null)
 							{
-								getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("lobby.exit.noarena"), LoggerUtility.Level.ERROR);
+								getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "lobby.exit.noarena"), LoggerUtility.Level.ERROR);
 							}
 							else
 							{
-								getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("lobby.players"), LoggerUtility.Level.INFO);
+								getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "lobby.players"), LoggerUtility.Level.INFO);
 								StringBuilder st = new StringBuilder();
 								for(int i = 0; i < ar.getLobby().size(); i++)
 								{
@@ -373,40 +378,40 @@ public class CurveCraft extends JavaPlugin
 						}
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.create.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.create.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.create.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.create.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.create.permission")))
 						{
 							if(this.arena.containsKey(player.getName()))
 							{
-								getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.already"), LoggerUtility.Level.INFO);
+								getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.already"), LoggerUtility.Level.INFO);
 								return true;
 							}
-							getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.notfinished.start"), LoggerUtility.Level.INFO);
-							getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.notfinished.start2"), LoggerUtility.Level.INFO);
+							getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.notfinished.start"), LoggerUtility.Level.INFO);
+							getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.notfinished.start2"), LoggerUtility.Level.INFO);
 
 							this.arena.put(player.getName(), new ArenaCreationProzess(this));
 						}
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.finish.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.finish.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.finish.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.finish.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.finish.permission")))
 						{
 							if(!this.arena.containsKey(player.getName()))
 							{
-								getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.noarena"), LoggerUtility.Level.INFO);
+								getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.noarena"), LoggerUtility.Level.INFO);
 								return true;
 							}
 							if(this.arenaHandler.getArenaByName(((ArenaCreationProzess) this.arena.get(player.getName())).getName()) != null)
 							{
-								getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.notfinished.nameexist"), LoggerUtility.Level.ERROR);
+								getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.notfinished.nameexist"), LoggerUtility.Level.ERROR);
 								return true;
 							}
 							try
 							{
 								((ArenaCreationProzess) this.arena.get(player.getName())).finishProzess();
-								getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.finished"), LoggerUtility.Level.INFO);
+								getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.finished"), LoggerUtility.Level.INFO);
 							}
 							catch(NotFinishedYetException ex)
 							{
@@ -417,80 +422,80 @@ public class CurveCraft extends JavaPlugin
 						}
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.setcorner1.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.setcorner1.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.setcorner1.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.setcorner1.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.setcorner1.permission")))
 						{
 							if(!this.arena.containsKey(player.getName()))
 							{
-								getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.noarena"), LoggerUtility.Level.INFO);
+								getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.noarena"), LoggerUtility.Level.INFO);
 								return true;
 							}
-							getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.notfinished.corner"), LoggerUtility.Level.INFO);
+							getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.notfinished.corner"), LoggerUtility.Level.INFO);
 							Location l = player.getLocation().add(0.0D, -1.0D, 0.0D);
 							((ArenaCreationProzess) this.arena.get(player.getName())).setCorner1(l);
 							getLoggerUtility().log(player, new StringBuilder().append(l.getBlockX()).append(" ").append(l.getBlockY()).append(" ").append(l.getBlockZ()).toString(), LoggerUtility.Level.INFO);
 						}
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.setlobby.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.setlobby.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.setlobby.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.setlobby.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.setlobby.permission")))
 						{
 							if(!this.arena.containsKey(player.getName()))
 							{
-								getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.noarena"), LoggerUtility.Level.INFO);
+								getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.noarena"), LoggerUtility.Level.INFO);
 								return true;
 							}
-							getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.notfinished.lobby"), LoggerUtility.Level.INFO);
+							getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.notfinished.lobby"), LoggerUtility.Level.INFO);
 							Location l = player.getLocation();
 							((ArenaCreationProzess) this.arena.get(player.getName())).setLobbyloc(l);
 							getLoggerUtility().log(player, new StringBuilder().append(l.getBlockX()).append(" ").append(l.getBlockY()).append(" ").append(l.getBlockZ()).toString(), LoggerUtility.Level.INFO);
 						}
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.setexit.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.setexit.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.setexit.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.setexit.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.setexit.permission")))
 						{
 							if(!this.arena.containsKey(player.getName()))
 							{
-								getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.noarena"), LoggerUtility.Level.INFO);
+								getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.noarena"), LoggerUtility.Level.INFO);
 								return true;
 							}
-							getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.notfinished.exit"), LoggerUtility.Level.INFO);
+							getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.notfinished.exit"), LoggerUtility.Level.INFO);
 							Location l = player.getLocation();
 							((ArenaCreationProzess) this.arena.get(player.getName())).setExitloc(l);
 							getLoggerUtility().log(player, new StringBuilder().append(l.getBlockX()).append(" ").append(l.getBlockY()).append(" ").append(l.getBlockZ()).toString(), LoggerUtility.Level.INFO);
 						}
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.setend.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.setend.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.setend.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.setend.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.setend.permission")))
 						{
 							if(!this.arena.containsKey(player.getName()))
 							{
-								getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.noarena"), LoggerUtility.Level.INFO);
+								getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.noarena"), LoggerUtility.Level.INFO);
 								return true;
 							}
-							getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.notfinished.end"), LoggerUtility.Level.INFO);
+							getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.notfinished.end"), LoggerUtility.Level.INFO);
 							Location l = player.getLocation();
 							((ArenaCreationProzess) this.arena.get(player.getName())).setEndloc(l);
 							getLoggerUtility().log(player, new StringBuilder().append(l.getBlockX()).append(" ").append(l.getBlockY()).append(" ").append(l.getBlockZ()).toString(), LoggerUtility.Level.INFO);
 						}
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.setcorner2.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.setcorner2.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.setcorner2.name")))
 					{
 						if(!this.arena.containsKey(player.getName()))
 						{
-							getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.noarena"), LoggerUtility.Level.INFO);
+							getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.noarena"), LoggerUtility.Level.INFO);
 							return true;
 						}
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.setcorner2.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.setcorner2.permission")))
 						{
-							getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.notfinished.corner"), LoggerUtility.Level.INFO);
+							getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.notfinished.corner"), LoggerUtility.Level.INFO);
 							Location l = player.getLocation().add(0.0D, -1.0D, 0.0D);
 							((ArenaCreationProzess) this.arena.get(player.getName())).setCorner2(l);
 							getLoggerUtility().log(player, new StringBuilder().append(l.getBlockX()).append(" ").append(l.getBlockY()).append(" ").append(l.getBlockZ()).toString(), LoggerUtility.Level.INFO);
@@ -504,29 +509,29 @@ public class CurveCraft extends JavaPlugin
 						player.sendMessage(new StringBuilder().append(ChatColor.GRAY).append("[CurveCraft]").append(ChatColor.DARK_AQUA).append(" Further information: http://dev.bukkit.org/server-mods/curvefever").toString());
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.denytracking.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.denytracking.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.denytracking.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.denytracking.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.denytracking.permission")))
 						{
 							if(getPrivacy().getConfig().containsKey(player.getName()))
 							{
 								getPrivacy().getConfig().remove(player.getName());
 							}
 							getPrivacy().getConfig().put(player.getName(), Boolean.FALSE);
-							getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("privacy.notification.denied"), LoggerUtility.Level.INFO);
+							getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "privacy.notification.denied"), LoggerUtility.Level.INFO);
 						}
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.allowtracking.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.allowtracking.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.allowtracking.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.allowtracking.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.allowtracking.permission")))
 						{
 							if(getPrivacy().getConfig().containsKey(player.getName()))
 							{
 								getPrivacy().getConfig().remove(player.getName());
 							}
 							getPrivacy().getConfig().put(player.getName(), Boolean.TRUE);
-							getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("privacy.notification.allowed"), LoggerUtility.Level.INFO);
+							getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "privacy.notification.allowed"), LoggerUtility.Level.INFO);
 						}
 						return true;
 					}
@@ -535,53 +540,57 @@ public class CurveCraft extends JavaPlugin
 				}
 				if(args.length == 2)
 				{
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.changelanguage.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.changelanguage.name")))
+					{
+						return executeCommandChangeLanguage(player, args);
+					}
 					if(args[0].equalsIgnoreCase("checkarena"))
 					{
 						boolean ina = getArenaHandler().getArenaByName(args[1]).isInArena(player.getLocation());
 						getLoggerUtility().log(player, "in Arena " + args[1] + ": " + ina, LoggerUtility.Level.INFO);
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.changecorner1.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.changecorner1.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.changecorner1.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.changecorner1.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.changecorner1.permission")))
 						{
 							CCArena a = arenaHandler.getArenaByName(args[1]);
 							if(a != null)
 							{
 								a.setCorner1(player.getLocation().add(0.0D, -1.0D, 0.0D));
 								a.saveToFolder(this);
-								getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("arena.change"), LoggerUtility.Level.INFO);
+								getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "arena.change"), LoggerUtility.Level.INFO);
 							}
 							else
 							{
-								getLoggerUtility().log(player, String.format(getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
+								getLoggerUtility().log(player, String.format(getConfigHandler().getLanguageString(player, "lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
 							}
 						}
 						return true;
 					}
 
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.changecorner2.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.changecorner2.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.changecorner2.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.changecorner2.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.changecorner2.permission")))
 						{
 							CCArena a = arenaHandler.getArenaByName(args[1]);
 							if(a != null)
 							{
 								a.setCorner1(player.getLocation().add(0.0D, -1.0D, 0.0D));
 								a.saveToFolder(this);
-								getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("arena.change"), LoggerUtility.Level.INFO);
+								getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "arena.change"), LoggerUtility.Level.INFO);
 							}
 							else
 							{
-								getLoggerUtility().log(player, String.format(getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
+								getLoggerUtility().log(player, String.format(getConfigHandler().getLanguageString(player, "lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
 							}
 						}
 						return true;
 					}
 
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.enable.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.enable.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.enable.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.enable.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.enable.permission")))
 						{
 							CCArena a = arenaHandler.getArenaByName(args[1]);
 							if(a != null)
@@ -599,15 +608,15 @@ public class CurveCraft extends JavaPlugin
 							}
 							else
 							{
-								getLoggerUtility().log(player, String.format(getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
+								getLoggerUtility().log(player, String.format(getConfigHandler().getLanguageString(player, "lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
 							}
 						}
 						return true;
 					}
 
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.disable.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.disable.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.disable.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.disable.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.disable.permission")))
 						{
 							CCArena a = arenaHandler.getArenaByName(args[1]);
 							if(a != null)
@@ -625,15 +634,15 @@ public class CurveCraft extends JavaPlugin
 							}
 							else
 							{
-								getLoggerUtility().log(player, String.format(getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
+								getLoggerUtility().log(player, String.format(getConfigHandler().getLanguageString(player, "lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
 							}
 						}
 						return true;
 					}
 
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.deletearena.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.deletearena.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.deletearena.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.deletearena.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.deletearena.permission")))
 						{
 							CCArena ar = arenaHandler.getArenaByName(args[1]);
 							if(ar != null)
@@ -643,15 +652,15 @@ public class CurveCraft extends JavaPlugin
 							}
 							else
 							{
-								getLoggerUtility().log(player, String.format(getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
+								getLoggerUtility().log(player, String.format(getConfigHandler().getLanguageString(player, "lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
 							}
 						}
 						return true;
 					}
 
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.resetarena.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.resetarena.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.resetarena.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.resetarena.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.resetarena.permission")))
 						{
 							CCArena a = arenaHandler.getArenaByName(args[1]);
 							if(a != null)
@@ -661,25 +670,25 @@ public class CurveCraft extends JavaPlugin
 							}
 							else
 							{
-								getLoggerUtility().log(player, String.format(getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
+								getLoggerUtility().log(player, String.format(getConfigHandler().getLanguageString(player, "lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
 							}
 						}
 						return true;
 					}
 
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.setname.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.setname.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.setname.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.setname.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.setname.permission")))
 						{
-							getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("create.notfinished.name"), LoggerUtility.Level.INFO);
+							getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "create.notfinished.name"), LoggerUtility.Level.INFO);
 							((ArenaCreationProzess) this.arena.get(player.getName())).setName(args[1]);
 						}
 						return true;
 					}
 
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.forcestart.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.forcestart.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.forcestart.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.forcestart.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.forcestart.permission")))
 						{
 							CCArena are = getArenaHandler().getArenaByName(args[1]);
 							if(are != null)
@@ -687,7 +696,7 @@ public class CurveCraft extends JavaPlugin
 								try
 								{
 									are.forcestart(this);
-									getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("start.forcestart.success"), LoggerUtility.Level.INFO);
+									getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "start.forcestart.success"), LoggerUtility.Level.INFO);
 								}
 								catch(StartGameException ex)
 								{
@@ -696,25 +705,25 @@ public class CurveCraft extends JavaPlugin
 							}
 							else
 							{
-								getLoggerUtility().log(player, String.format(getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
+								getLoggerUtility().log(player, String.format(getConfigHandler().getLanguageString(player, "lobby.join.noarena"), args[1]), LoggerUtility.Level.ERROR);
 							}
 						}
 						return true;
 					}
-					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguage_config().getString("commands.join.name")))
+					if(args[0].equalsIgnoreCase(getConfigHandler().getLanguageString(player, "commands.join.name")) || args[0].equalsIgnoreCase(getConfigHandler().getLanguageString("system", "commands.join.name")))
 					{
-						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguage_config().getString("commands.join.permission")))
+						if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.join.permission")))
 						{
 							if(getArenaHandler().getArenaOfPlayer(player) != null)
 							{
-								getLoggerUtility().log(player, getConfigHandler().getLanguage_config().getString("lobby.join.already"), LoggerUtility.Level.ERROR);
+								getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "lobby.join.already"), LoggerUtility.Level.ERROR);
 							}
 							else
 							{
 								CCArena a = getArenaHandler().getArenaByName(args[1]);
 								if(a == null)
 								{
-									getLoggerUtility().log(player, String.format(getConfigHandler().getLanguage_config().getString("lobby.join.noarena"), new Object[] {args[1]}), LoggerUtility.Level.ERROR);
+									getLoggerUtility().log(player, String.format(getConfigHandler().getLanguageString(player, "lobby.join.noarena"), new Object[] {args[1]}), LoggerUtility.Level.ERROR);
 								}
 								else if(((getConfigHandler().getConfig().getBoolean("everyArenaOwnJoinPermission")) && (getPermissions().checkpermissions(player, new StringBuilder().append("CurveFerver.join.").append(args[1]).toString()))) || (!getConfigHandler().getConfig().getBoolean("everyArenaOwnJoinPermission")))
 								{
@@ -741,5 +750,50 @@ public class CurveCraft extends JavaPlugin
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Change the language of a player
+	 * @param player
+	 * @param args
+	 * @return
+	 */
+	private boolean executeCommandChangeLanguage(Player player, String... args)
+	{
+		if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.changelanguage.permission", false)))
+		{
+			try
+			{
+				getConfigHandler().setPlayerLanguage(player, args[1]);
+			}
+			catch(IllegalArgumentException e)
+			{
+				getLoggerUtility().log(player, e.getMessage(), LoggerUtility.Level.ERROR);
+				return true;
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+				getLoggerUtility().log(player, e.getMessage(), LoggerUtility.Level.ERROR);
+				return true;
+			}
+			getLoggerUtility().log(player, getConfigHandler().getLanguageString(player, "commands.changelanguage.return"), LoggerUtility.Level.INFO);
+		}
+		return true;
+	}
+
+	private boolean executeCommandLanguageList(Player player, String... args)
+	{
+		if(getPermissions().checkpermissions(player, getConfigHandler().getLanguageString(player, "commands.languagelist.permission", false)))
+		{
+			getLoggerUtility().log(player, ChatColor.GREEN + getConfigHandler().getLanguageString(player, "configuration.language.list"), LoggerUtility.Level.INFO);
+			getLoggerUtility().log(player, ChatColor.GREEN + getConfigHandler().getLanguageString(player, "commands.changelanguage.usage"), LoggerUtility.Level.INFO);
+
+			for(com.ibhh.CurveCraft.locales.PluginLocale file : getConfigHandler().getLanguage_configs().values())
+			{
+				getLoggerUtility().log(player, file.getLocaleName() + " (" + file.getCode() + ")", LoggerUtility.Level.INFO);
+			}
+		}
+		return true;
 	}
 }

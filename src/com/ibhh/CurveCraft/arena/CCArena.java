@@ -1,9 +1,5 @@
 package com.ibhh.CurveCraft.arena;
 
-import com.ibhh.CurveCraft.CurveCraft;
-import com.ibhh.CurveCraft.commandwhitelist.CommandWhiteList;
-import com.ibhh.CurveCraft.logger.LoggerUtility;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,6 +32,10 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.util.Vector;
 
+import com.ibhh.CurveCraft.CurveCraft;
+import com.ibhh.CurveCraft.commandwhitelist.CommandWhiteList;
+import com.ibhh.CurveCraft.logger.LoggerUtility;
+
 public class CCArena
 {
 
@@ -63,6 +63,7 @@ public class CCArena
 		}
 		return (float) (-yaw * 180.0D / 3.141592653589793D - 90.0D);
 	}
+
 	private final ArrayList<Player> alive = new ArrayList<>();
 
 	private boolean allowstartwithoutmaxplayers = true;
@@ -207,9 +208,12 @@ public class CCArena
 		this.corner2 = new Location(world, Integer.parseInt(cc2[0]), Integer.parseInt(cc2[1]), Integer.parseInt(cc2[2]));
 		this.lobbyloc = new Location(world, Integer.parseInt(cc3[0]), Integer.parseInt(cc3[1]), Integer.parseInt(cc3[2]));
 		this.endloc = new Location(world, Integer.parseInt(cc4[0]), Integer.parseInt(cc4[1]), Integer.parseInt(cc4[2]));
-		if(!exitworld.equals("")) {
+		if(!exitworld.equals(""))
+		{
 			this.exitloc = new Location(plugin.getServer().getWorld(exitworld), Integer.parseInt(cc5[0]), Integer.parseInt(cc5[1]), Integer.parseInt(cc5[2]));
-		} else {
+		}
+		else
+		{
 			this.exitloc = new Location(world, Integer.parseInt(cc5[0]), Integer.parseInt(cc5[1]), Integer.parseInt(cc5[2]));
 		}
 
@@ -264,34 +268,34 @@ public class CCArena
 	{
 		if(this.disabled)
 		{
-			throw new LobbyJoinException(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.disabled"));
+			throw new LobbyJoinException(plugin.getConfigHandler().getLanguageString(p, "lobby.join.disabled"));
 		}
 		if(this.gameisrunning)
 		{
-			throw new LobbyJoinException(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.gamerunning"));
+			throw new LobbyJoinException(plugin.getConfigHandler().getLanguageString(p, "lobby.join.gamerunning"));
 		}
 		if(this.lobby.size() >= this.maxplayers)
 		{
-			throw new LobbyJoinException(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.full"));
+			throw new LobbyJoinException(plugin.getConfigHandler().getLanguageString(p, "lobby.join.full"));
 		}
-		plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.message1"), new Object[] {getName()}), LoggerUtility.Level.INFO);
+		plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguageString(p, "lobby.join.message1"), new Object[] {getName()}), LoggerUtility.Level.INFO);
 		if(this.allowstartwithoutmaxplayers)
 		{
-			plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.message3"), new Object[] {this.minplayers}), LoggerUtility.Level.INFO);
+			plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguageString(p, "lobby.join.message3"), new Object[] {this.minplayers}), LoggerUtility.Level.INFO);
 		}
-		plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.message4"), new Object[] {this.maxplayers}), LoggerUtility.Level.INFO);
-		plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.message2"), new Object[] {this.lobby.size() + 1}), LoggerUtility.Level.INFO);
+		plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguageString(p, "lobby.join.message4"), new Object[] {this.maxplayers}), LoggerUtility.Level.INFO);
+		plugin.getLoggerUtility().log(p, String.format(plugin.getConfigHandler().getLanguageString(p, "lobby.join.message2"), new Object[] {this.lobby.size() + 1}), LoggerUtility.Level.INFO);
 
 		for(Player pl : this.lobby)
 		{
-			plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.playerjoin"), new Object[] {p.getName()}), LoggerUtility.Level.INFO);
-			plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.message2"), new Object[] {this.lobby.size() + 1}), LoggerUtility.Level.INFO);
+			plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguageString(p, "lobby.join.playerjoin"), new Object[] {p.getName()}), LoggerUtility.Level.INFO);
+			plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguageString(p, "lobby.join.message2"), new Object[] {this.lobby.size() + 1}), LoggerUtility.Level.INFO);
 		}
-		
+
 		this.lobby.add(p);
 		this.score.put(p, 0);
 		updateStatusSign();
-		
+
 		p.teleport(this.lobbyloc);
 		p.setFoodLevel(20);
 		p.setSprinting(false);
@@ -308,7 +312,7 @@ public class CCArena
 			Scoreboard board = manager.getNewScoreboard();
 			Objective objective = board.registerNewObjective("cfboard", "dummy");
 			objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-			objective.setDisplayName(ChatColor.GREEN + plugin.getConfigHandler().getLanguage_config().getString("scoreboard.name") + "(" + (this.lobby.size() - 1) * 10 + ")");
+			objective.setDisplayName(ChatColor.GREEN + plugin.getConfigHandler().getLanguageString(p, "scoreboard.name") + "(" + (this.lobby.size() - 1) * 10 + ")");
 			for(Player pla : this.lobby)
 			{
 				objective.getScore(pla.getName()).setScore(0);
@@ -399,7 +403,7 @@ public class CCArena
 			Scoreboard board = manager.getNewScoreboard();
 			Objective objective = board.registerNewObjective("cfboard", "dummy");
 			objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-			objective.setDisplayName(ChatColor.GREEN + plugin.getConfigHandler().getLanguage_config().getString("scoreboard.name") + "(" + (this.lobby.size() - 1) * 10 + ")");
+			objective.setDisplayName(ChatColor.GREEN + plugin.getConfigHandler().getLanguageString(p, "scoreboard.name") + "(" + (this.lobby.size() - 1) * 10 + ")");
 			for(Player pla : this.lobby)
 			{
 				objective.getScore(pla.getName()).setScore((this.score.get(pla)));
@@ -420,7 +424,7 @@ public class CCArena
 			plugin.getLoggerUtility().log("last player was: " + ((Player) this.alive.get(0)).getName(), LoggerUtility.Level.DEBUG);
 			for(Player pl : this.lobby)
 			{
-				plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("round.winner"), this.alive.get(0).getName()), LoggerUtility.Level.INFO);
+				plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguageString(p, "round.winner"), this.alive.get(0).getName()), LoggerUtility.Level.INFO);
 			}
 			roundrunning = false;
 			pointsneeded = (CCArena.this.lobby.size() - 1) * 10;
@@ -454,7 +458,7 @@ public class CCArena
 						pla = plugin.getServer().getOnlinePlayers().toArray(pla);
 						for(final Player pl : pla)
 						{
-							plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.winner"), getName(), hasWinner().getName()), LoggerUtility.Level.INFO);
+							plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguageString(p, "game.winner"), getName(), hasWinner().getName()), LoggerUtility.Level.INFO);
 
 						}
 						plugin.getLoggerUtility().log("passed gameticks: " + (CCArena.this.invincible - 20), LoggerUtility.Level.DEBUG);
@@ -529,7 +533,7 @@ public class CCArena
 	{
 		if(gameisrunning)
 		{
-			throw new StartGameException(plugin.getConfigHandler().getLanguage_config().getString("lobby.join.gamerunning"));
+			throw new StartGameException(plugin.getConfigHandler().getLanguageString("system", "lobby.join.gamerunning"));
 		}
 		if(lobby.size() >= 2)
 		{
@@ -537,7 +541,7 @@ public class CCArena
 		}
 		else
 		{
-			throw new StartGameException(plugin.getConfigHandler().getLanguage_config().getString("start.forcestart.fail"));
+			throw new StartGameException(plugin.getConfigHandler().getLanguageString("system", "start.forcestart.fail"));
 		}
 	}
 
@@ -557,7 +561,7 @@ public class CCArena
 		{
 			if(!isInArena(p.getLocation()) && (invincible <= 0))
 			{
-				plugin.getLoggerUtility().log(p, plugin.getConfigHandler().getLanguage_config().getString("game.crash.wand"), LoggerUtility.Level.INFO);
+				plugin.getLoggerUtility().log(p, plugin.getConfigHandler().getLanguageString(p, "game.crash.wand"), LoggerUtility.Level.INFO);
 				plugin.getLoggerUtility().log("player " + p.getName() + " was outside the arena!", LoggerUtility.Level.DEBUG);
 
 				die(plugin, p, true);
@@ -617,7 +621,7 @@ public class CCArena
 
 					if((b.getType().equals(Material.STAINED_GLASS_PANE)) && (this.invincible <= 0))
 					{
-						plugin.getLoggerUtility().log(p, plugin.getConfigHandler().getLanguage_config().getString("game.crash.plane"), LoggerUtility.Level.INFO);
+						plugin.getLoggerUtility().log(p, plugin.getConfigHandler().getLanguageString(p, "game.crash.plane"), LoggerUtility.Level.INFO);
 						plugin.getLoggerUtility().log("player " + p.getName() + " crashed into plane!", LoggerUtility.Level.DEBUG);
 						die(plugin, p, true);
 					}
@@ -854,11 +858,11 @@ public class CCArena
 		{
 			if(round)
 			{
-				plugin.getLoggerUtility().log(player, plugin.getConfigHandler().getLanguage_config().getString("start.round"), LoggerUtility.Level.INFO);
+				plugin.getLoggerUtility().log(player, plugin.getConfigHandler().getLanguageString(player, "start.round"), LoggerUtility.Level.INFO);
 			}
 			else
 			{
-				plugin.getLoggerUtility().log(player, plugin.getConfigHandler().getLanguage_config().getString("start.starting"), LoggerUtility.Level.INFO);
+				plugin.getLoggerUtility().log(player, plugin.getConfigHandler().getLanguageString(player, "start.starting"), LoggerUtility.Level.INFO);
 			}
 		}
 		plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable()
@@ -878,18 +882,18 @@ public class CCArena
 							{
 								if(round)
 								{
-									plugin.getLoggerUtility().log(player, String.format(plugin.getConfigHandler().getLanguage_config().getString("start.starting_round"), timebeforeround - i), LoggerUtility.Level.INFO);
+									plugin.getLoggerUtility().log(player, String.format(plugin.getConfigHandler().getLanguageString(player, "start.starting_round"), timebeforeround - i), LoggerUtility.Level.INFO);
 								}
 								else
 								{
-									plugin.getLoggerUtility().log(player, String.format(plugin.getConfigHandler().getLanguage_config().getString("start.starting_game"), timebeforegame - i), LoggerUtility.Level.INFO);
+									plugin.getLoggerUtility().log(player, String.format(plugin.getConfigHandler().getLanguageString(player, "start.starting_game"), timebeforegame - i), LoggerUtility.Level.INFO);
 								}
 							}
 						}
 					}
 					for(Player player : CCArena.this.lobby)
 					{
-						plugin.getLoggerUtility().log(player, plugin.getConfigHandler().getLanguage_config().getString("start.starting0"), LoggerUtility.Level.INFO);
+						plugin.getLoggerUtility().log(player, plugin.getConfigHandler().getLanguageString(player, "start.starting0"), LoggerUtility.Level.INFO);
 					}
 					if(round)
 					{
@@ -922,7 +926,7 @@ public class CCArena
 				{
 					for(Player player : CCArena.this.lobby)
 					{
-						plugin.getLoggerUtility().log(player, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.color"), horses.get(player).name()), LoggerUtility.Level.INFO);
+						plugin.getLoggerUtility().log(player, String.format(plugin.getConfigHandler().getLanguageString(player, "game.color"), horses.get(player).name()), LoggerUtility.Level.INFO);
 					}
 					pointsneeded = (CCArena.this.lobby.size() - 1) * 10;
 				}
@@ -1029,7 +1033,7 @@ public class CCArena
 	{
 		if(!this.lobby.contains(p))
 		{
-			throw new NotInLobbyorGameException(plugin.getConfigHandler().getLanguage_config().getString("lobby.exit.noarena"));
+			throw new NotInLobbyorGameException(plugin.getConfigHandler().getLanguageString(p, "lobby.exit.noarena"));
 		}
 		if(this.gameisrunning)
 		{
@@ -1049,15 +1053,18 @@ public class CCArena
 			Scoreboard board = manager.getNewScoreboard();
 			Objective objective = board.registerNewObjective("cfboard", "dummy");
 			objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-			objective.setDisplayName(ChatColor.GREEN + plugin.getConfigHandler().getLanguage_config().getString("scoreboard.name") + "(" + (this.lobby.size() - 1) * 10 + ")");
+			objective.setDisplayName(ChatColor.GREEN + plugin.getConfigHandler().getLanguageString(p, "scoreboard.name") + "(" + (this.lobby.size() - 1) * 10 + ")");
 			for(Player pla : this.lobby)
 			{
 				objective.getScore(pla.getName()).setScore((this.score.get(pla)));
 			}
 			pl.setScoreboard(board);
 		}
-		final Scoreboard board = manager.getNewScoreboard();
-		p.setScoreboard(board);
+		if(p.getScoreboard().getObjective("cfboard") != null)
+		{
+			final Scoreboard board = manager.getNewScoreboard();
+			p.setScoreboard(board);
+		}
 		/**
 		 * Fire Event PlayerLeaveEvent
 		 */
@@ -1077,15 +1084,18 @@ public class CCArena
 				@Override
 				public void run()
 				{
-					ScoreboardManager manager = Bukkit.getScoreboardManager();
-					Scoreboard board = manager.getNewScoreboard();
-					lobby.get(0).setScoreboard(board);
+					if(lobby.get(0).getScoreboard().getObjective("cfboard") != null)
+					{
+						ScoreboardManager manager = Bukkit.getScoreboardManager();
+						Scoreboard board = manager.getNewScoreboard();
+						lobby.get(0).setScoreboard(board);
+					}
 				}
 			}, 200L);
 
 			for(final Player s : pla)
 			{
-				plugin.getLoggerUtility().log(s, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.winner"), new Object[] {this.name, ((Player) this.lobby.get(0)).getName()}), LoggerUtility.Level.INFO);
+				plugin.getLoggerUtility().log(s, String.format(plugin.getConfigHandler().getLanguageString(p, "game.winner"), new Object[] {this.name, ((Player) this.lobby.get(0)).getName()}), LoggerUtility.Level.INFO);
 			}
 			removePlayerFromGame(plugin, lobby.get(0));
 			reset(plugin, true);
@@ -1119,9 +1129,9 @@ public class CCArena
 
 		for(Player pl : this.lobby)
 		{
-			plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("game.exit.playerexit"), new Object[] {p.getName()}), LoggerUtility.Level.INFO);
+			plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguageString(p, "game.exit.playerexit"), new Object[] {p.getName()}), LoggerUtility.Level.INFO);
 		}
-		plugin.getLoggerUtility().log(p, plugin.getConfigHandler().getLanguage_config().getString("game.exit.message"), LoggerUtility.Level.INFO);
+		plugin.getLoggerUtility().log(p, plugin.getConfigHandler().getLanguageString(p, "game.exit.message"), LoggerUtility.Level.INFO);
 	}
 
 	private void removePlayerFromLobby(CurveCraft plugin, final Player p)
@@ -1133,7 +1143,7 @@ public class CCArena
 		}
 		for(Player pl : this.lobby)
 		{
-			plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguage_config().getString("lobby.exit.playerexit"), new Object[] {p.getName()}), LoggerUtility.Level.INFO);
+			plugin.getLoggerUtility().log(pl, String.format(plugin.getConfigHandler().getLanguageString(p, "lobby.exit.playerexit"), new Object[] {p.getName()}), LoggerUtility.Level.INFO);
 		}
 		p.teleport(exitloc);
 		plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable()
@@ -1145,7 +1155,7 @@ public class CCArena
 			}
 		}, 20L);
 
-		plugin.getLoggerUtility().log(p, plugin.getConfigHandler().getLanguage_config().getString("lobby.exit.message"), LoggerUtility.Level.INFO);
+		plugin.getLoggerUtility().log(p, plugin.getConfigHandler().getLanguageString(p, "lobby.exit.message"), LoggerUtility.Level.INFO);
 	}
 
 	/**
@@ -1683,18 +1693,18 @@ public class CCArena
 	{
 		if(!this.allowstartwithoutmaxplayers)
 		{
-			throw new VotingNotEnabledException(plugin.getConfigHandler().getLanguage_config().getString("start.votingnotenabled"));
+			throw new VotingNotEnabledException(plugin.getConfigHandler().getLanguageString(player, "start.votingnotenabled"));
 		}
 		if(!this.lobby.contains(player))
 		{
-			throw new NotInLobbyorGameException(plugin.getConfigHandler().getLanguage_config().getString("lobby.exit.noarena"));
+			throw new NotInLobbyorGameException(plugin.getConfigHandler().getLanguageString(player, "lobby.exit.noarena"));
 		}
 		if(this.voted.contains(player))
 		{
-			throw new AlreadyVotedException(plugin.getConfigHandler().getLanguage_config().getString("start.alreadyvoted"));
+			throw new AlreadyVotedException(plugin.getConfigHandler().getLanguageString(player, "start.alreadyvoted"));
 		}
 		this.voted.add(player);
-		plugin.getLoggerUtility().log(player, plugin.getConfigHandler().getLanguage_config().getString("start.voted"), LoggerUtility.Level.INFO);
+		plugin.getLoggerUtility().log(player, plugin.getConfigHandler().getLanguageString(player, "start.voted"), LoggerUtility.Level.INFO);
 		if(this.voted.size() == this.minplayers)
 		{
 			initGame(plugin, false);

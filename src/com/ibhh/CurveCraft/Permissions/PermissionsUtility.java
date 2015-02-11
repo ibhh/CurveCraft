@@ -69,7 +69,7 @@ public class PermissionsUtility
 
 	private void sendErrorMessage(Player player, String action)
 	{
-		plugin.getLoggerUtility().log(player, player.getName() + " " + plugin.getConfigHandler().getLanguage_config().getString("permission.error") + " (" + action + ")", LoggerUtility.Level.ERROR);
+		plugin.getLoggerUtility().log(player, player.getName() + " " + plugin.getConfigHandler().getLanguageString(player, "permission.error") + " (" + action + ")", LoggerUtility.Level.ERROR);
 	}
 
 	private void sendGeneralErrorMessage(Player player, Exception e)
